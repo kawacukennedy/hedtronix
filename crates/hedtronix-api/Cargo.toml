@@ -1,0 +1,31 @@
+[package]
+name = "hedtronix-api"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+[dependencies]
+hedtronix-core = { path = "../hedtronix-core" }
+hedtronix-db = { path = "../hedtronix-db" }
+hedtronix-auth = { path = "../hedtronix-auth" }
+hedtronix-sync = { path = "../hedtronix-sync" }
+hedtronix-crypto = { path = "../hedtronix-crypto" }
+tokio.workspace = true
+axum.workspace = true
+tower.workspace = true
+tower-http.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+thiserror.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+config.workspace = true
+dotenvy.workspace = true
+validator.workspace = true
+
+[[bin]]
+name = "hedtronix"
+path = "src/main.rs"
