@@ -1,0 +1,75 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/hedtronix-core",
+    "crates/hedtronix-api",
+    "crates/hedtronix-db",
+    "crates/hedtronix-sync",
+    "crates/hedtronix-crypto",
+    "crates/hedtronix-auth",
+]
+
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+authors = ["HEDTRONIX Team"]
+license = "Proprietary"
+repository = "https://github.com/hedtronix/hedtronix"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+
+# Web framework
+axum = { version = "0.7", features = ["macros"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace", "compression-gzip"] }
+
+# Database
+sqlx = { version = "0.7", features = ["runtime-tokio", "sqlite", "uuid", "chrono", "json"] }
+rusqlite = { version = "0.31", features = ["bundled", "serde_json"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# CRDT
+automerge = "0.5"
+
+# Cryptography
+ring = "0.17"
+argon2 = "0.5"
+base64 = "0.21"
+
+# JWT
+jsonwebtoken = "9.2"
+
+# UUID
+uuid = { version = "1.6", features = ["v4", "v7", "serde"] }
+
+# Date/time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Configuration
+config = "0.14"
+dotenvy = "0.15"
+
+# Validation
+validator = { version = "0.16", features = ["derive"] }
+
+# Testing
+tokio-test = "0.4"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
