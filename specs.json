@@ -1,0 +1,2654 @@
+{
+    "project": {
+        "name": "HEDTRONIX",
+        "version": "1.0.0",
+        "description": "Offline-first, globally scalable healthcare operating system for private clinics and hospitals",
+        "core_principles": [
+            "Safety-critical reliability with near-zero downtime",
+            "Offline-first architecture with automatic synchronization",
+            "Modularity and extensibility via plugin runtime",
+            "Zero-trust security with end-to-end encryption",
+            "Institutional scalability and long-term maintainability"
+        ]
+    },
+    "product_requirements": {
+        "functional_requirements": {
+            "FR-001": {
+                "id": "FR-001",
+                "title": "Offline Operation",
+                "description": "All core functionality must be available without internet connection",
+                "acceptance_criteria": [
+                    "Users can create, read, update patient records offline",
+                    "Appointments can be scheduled and modified offline",
+                    "Billing entries can be created offline",
+                    "All offline changes sync automatically when connection restored",
+                    "Conflict resolution is automatic and deterministic"
+                ],
+                "priority": "Critical"
+            },
+            "FR-002": {
+                "id": "FR-002",
+                "title": "Multi-device Support",
+                "description": "Users can access system from multiple devices with consistent state",
+                "acceptance_criteria": [
+                    "Each user can register up to 5 devices",
+                    "Device state syncs automatically between devices",
+                    "Device revocation is immediate and secure",
+                    "Offline changes merge correctly across devices"
+                ],
+                "priority": "Critical"
+            },
+            "FR-003": {
+                "id": "FR-003",
+                "title": "Electronic Health Records",
+                "description": "Comprehensive patient record management with structured data",
+                "acceptance_criteria": [
+                    "Support for patient demographics, medical history, allergies, medications",
+                    "Configurable templates per specialty",
+                    "Rich text notes with formatting",
+                    "File attachments (images, PDFs, scans)",
+                    "Version history and audit trail",
+                    "Prescription management with e-signatures"
+                ],
+                "priority": "Critical"
+            },
+            "FR-004": {
+                "id": "FR-004",
+                "title": "Appointment Scheduling",
+                "description": "Multi-resource scheduling with conflict detection",
+                "acceptance_criteria": [
+                    "Calendar views: day, week, month, agenda",
+                    "Resource scheduling: rooms, doctors, equipment",
+                    "Recurring appointment patterns",
+                    "Waitlist management",
+                    "Automated reminders via SMS/email",
+                    "Check-in/check-out workflow"
+                ],
+                "priority": "Critical"
+            },
+            "FR-005": {
+                "id": "FR-005",
+                "title": "Billing and Insurance",
+                "description": "Complete billing system with insurance claim management",
+                "acceptance_criteria": [
+                    "Procedure code lookup (CPT, ICD-10)",
+                    "Insurance eligibility verification",
+                    "Electronic claims submission (837 format)",
+                    "Payment posting and reconciliation",
+                    "Patient statements and invoices",
+                    "Accounts receivable aging reports"
+                ],
+                "priority": "High"
+            },
+            "FR-006": {
+                "id": "FR-006",
+                "title": "Analytics and Reporting",
+                "description": "Real-time and historical analytics with export capabilities",
+                "acceptance_criteria": [
+                    "Dashboard with key performance indicators",
+                    "Ad-hoc query builder",
+                    "Scheduled report generation",
+                    "Export to PDF, Excel, CSV",
+                    "Real-time patient census",
+                    "Revenue cycle analytics"
+                ],
+                "priority": "High"
+            },
+            "FR-007": {
+                "id": "FR-007",
+                "title": "Security and Compliance",
+                "description": "Enterprise-grade security with healthcare compliance",
+                "acceptance_criteria": [
+                    "HIPAA compliance for all data elements",
+                    "GDPR compliance for international deployments",
+                    "End-to-end encryption at rest and in transit",
+                    "Comprehensive audit logging",
+                    "Role-based and attribute-based access control",
+                    "Data retention and deletion policies"
+                ],
+                "priority": "Critical"
+            }
+        },
+        "non_functional_requirements": {
+            "NFR-001": {
+                "id": "NFR-001",
+                "title": "Performance",
+                "description": "System responsiveness under various loads",
+                "metrics": {
+                    "ui_response_time": "Under 100ms for local operations",
+                    "data_sync_latency": "Under 1 second for delta sync",
+                    "concurrent_users": "Support for 500+ concurrent users per instance",
+                    "data_export_speed": "10,000 records in under 30 seconds"
+                }
+            },
+            "NFR-002": {
+                "id": "NFR-002",
+                "title": "Reliability",
+                "description": "System availability and fault tolerance",
+                "metrics": {
+                    "uptime": "99.99% for core services",
+                    "recovery_time": "Under 5 minutes for local failures",
+                    "data_durability": "Zero data loss with automatic backup",
+                    "sync_reliability": "100% eventual consistency guarantee"
+                }
+            },
+            "NFR-003": {
+                "id": "NFR-003",
+                "title": "Scalability",
+                "description": "Ability to scale from single clinic to multi-hospital deployments",
+                "metrics": {
+                    "horizontal_scaling": "Linear scaling to 100+ nodes",
+                    "data_volume": "Support for 10M+ patient records",
+                    "geographic_distribution": "Multi-region deployment capability",
+                    "module_isolation": "Plugin failures don't affect core runtime"
+                }
+            },
+            "NFR-004": {
+                "id": "NFR-004",
+                "title": "Usability",
+                "description": "Intuitive interface for healthcare professionals",
+                "metrics": {
+                    "training_time": "Under 2 hours for basic proficiency",
+                    "error_rate": "Less than 1% error rate for common tasks",
+                    "accessibility": "WCAG 2.1 AA compliance",
+                    "offline_feedback": "Clear visual indication of sync status"
+                }
+            }
+        }
+    },
+    "user_stories": {
+        "clinical_users": {
+            "US-001": {
+                "id": "US-001",
+                "role": "Physician",
+                "story": "As a physician, I want to access and update patient records during rounds without internet so I can provide continuous care in all hospital areas",
+                "acceptance_criteria": [
+                    "Can search patients by name/ID while offline",
+                    "Can view full medical history including recent labs",
+                    "Can add consultation notes with voice-to-text",
+                    "Can prescribe medications with dosage calculations",
+                    "Changes save locally and sync when back online"
+                ],
+                "priority": "Critical"
+            },
+            "US-002": {
+                "id": "US-002",
+                "role": "Nurse",
+                "story": "As a nurse, I want to document vital signs and medication administration in real-time so I can maintain accurate patient records and avoid medication errors",
+                "acceptance_criteria": [
+                    "Quick vitals entry with normal range highlighting",
+                    "Barcode scanning for medication verification",
+                    "Timed medication administration records",
+                    "Alerts for abnormal values",
+                    "Offline documentation with time-stamped entries"
+                ],
+                "priority": "Critical"
+            },
+            "US-003": {
+                "id": "US-003",
+                "role": "Receptionist",
+                "story": "As a receptionist, I want to manage patient check-ins and appointments efficiently so I can reduce waiting times and optimize clinic workflow",
+                "acceptance_criteria": [
+                    "Quick patient lookup with photo verification",
+                    "Appointment status updates in real-time",
+                    "Insurance card scanning and validation",
+                    "Co-pay collection tracking",
+                    "Wait time display for patients"
+                ],
+                "priority": "High"
+            }
+        },
+        "administrative_users": {
+            "US-004": {
+                "id": "US-004",
+                "role": "Billing Specialist",
+                "story": "As a billing specialist, I want to process insurance claims and patient payments accurately so I can maximize revenue and minimize denials",
+                "acceptance_criteria": [
+                    "Batch claim submission with validation",
+                    "Real-time claim status tracking",
+                    "Denial management with appeal workflow",
+                    "Payment posting with automatic reconciliation",
+                    "Aging report generation"
+                ],
+                "priority": "High"
+            },
+            "US-005": {
+                "id": "US-005",
+                "role": "Clinic Manager",
+                "story": "As a clinic manager, I want to monitor clinic performance and resource utilization so I can make data-driven decisions to improve efficiency",
+                "acceptance_criteria": [
+                    "Real-time dashboard with KPIs",
+                    "Provider productivity metrics",
+                    "Room utilization reports",
+                    "Patient satisfaction scores",
+                    "Revenue by service line"
+                ],
+                "priority": "Medium"
+            },
+            "US-006": {
+                "id": "US-006",
+                "role": "System Administrator",
+                "story": "As a system administrator, I want to manage user access and system configuration securely so I can maintain compliance and operational stability",
+                "acceptance_criteria": [
+                    "Role-based permission assignment",
+                    "Device enrollment and revocation",
+                    "Audit log review and export",
+                    "System health monitoring",
+                    "Backup and restore operations"
+                ],
+                "priority": "Critical"
+            }
+        },
+        "patient_users": {
+            "US-007": {
+                "id": "US-007",
+                "role": "Patient",
+                "story": "As a patient, I want to access my medical records and communicate with my care team so I can be more engaged in my healthcare decisions",
+                "acceptance_criteria": [
+                    "Secure portal access with MFA",
+                    "View lab results and visit summaries",
+                    "Secure messaging with providers",
+                    "Medication list and refill requests",
+                    "Appointment scheduling and reminders"
+                ],
+                "priority": "Medium"
+            }
+        }
+    },
+    "edge_cases": {
+        "EC-001": {
+            "id": "EC-001",
+            "description": "Extended network partition with conflicting data modifications",
+            "scenario": "Clinic A and Clinic B (same organization) are offline for 7 days. Both modify the same patient's allergy list. Clinic A adds 'Penicillin', Clinic B adds 'Sulfa' and removes 'Ibuprofen' that was previously listed.",
+            "resolution": "CRDT-based list merging ensures both additions are preserved. Removal of 'Ibuprofen' only takes effect if both clinics agree (via timestamp and clinic priority rules). Final state shows both new allergies, with audit log showing resolution."
+        },
+        "EC-002": {
+            "id": "EC-002",
+            "description": "Device compromise and credential revocation during offline period",
+            "scenario": "Doctor's tablet is stolen while doctor is on rounds offline. Administrator revokes device credentials centrally.",
+            "resolution": "Device maintains encrypted local data but cannot decrypt without fresh credentials. On next sync attempt, device receives revocation notice and wipes local data. All actions from stolen device are logged but cannot access new data."
+        },
+        "EC-003": {
+            "id": "EC-003",
+            "description": "Billing code change while offline",
+            "scenario": "Receptionist creates billing entry with old CPT code offline. Meanwhile, system updates CPT codes centrally. On sync, old code is invalid.",
+            "resolution": "Sync engine flags invalid code, suggests nearest valid code based on description, requires human confirmation. Original entry preserved in audit log with correction trail."
+        },
+        "EC-004": {
+            "id": "EC-004",
+            "description": "Emergency override during system maintenance",
+            "scenario": "System undergoing scheduled maintenance but emergency patient arrives needing immediate care documentation.",
+            "resolution": "Emergency mode allows limited local documentation with heightened audit trail. All entries marked 'EMERGENCY_OVERRIDE' and require supervisor review post-maintenance."
+        },
+        "EC-005": {
+            "id": "EC-005",
+            "description": "Regulatory requirement for data deletion vs. clinical necessity",
+            "scenario": "Patient invokes GDPR right to erasure, but data is part of ongoing treatment and legal medical record requirements.",
+            "resolution": "System implements cryptographic tombstone: data is encrypted with destroyed key, metadata preserved with 'REDACTED_PER_GDPR' flag. Clinical audit trail maintained, actual content irrecoverable."
+        }
+    },
+    "data_models": {
+        "core_entities": {
+            "User": {
+                "fields": {
+                    "id": {
+                        "type": "UUID",
+                        "primary_key": true,
+                        "indexed": true
+                    },
+                    "email": {
+                        "type": "STRING",
+                        "unique": true,
+                        "encrypted": true
+                    },
+                    "name": {
+                        "type": "STRING",
+                        "encrypted": true
+                    },
+                    "role": {
+                        "type": "ENUM",
+                        "values": [
+                            "PHYSICIAN",
+                            "NURSE",
+                            "RECEPTIONIST",
+                            "BILLING",
+                            "ADMIN",
+                            "PATIENT"
+                        ]
+                    },
+                    "department_id": {
+                        "type": "UUID",
+                        "foreign_key": "Department.id"
+                    },
+                    "license_number": {
+                        "type": "STRING",
+                        "encrypted": true,
+                        "optional": true
+                    },
+                    "npi_number": {
+                        "type": "STRING",
+                        "encrypted": true,
+                        "optional": true
+                    },
+                    "active": {
+                        "type": "BOOLEAN",
+                        "default": true
+                    },
+                    "created_at": {
+                        "type": "TIMESTAMP"
+                    },
+                    "updated_at": {
+                        "type": "TIMESTAMP"
+                    },
+                    "last_login_at": {
+                        "type": "TIMESTAMP",
+                        "optional": true
+                    }
+                },
+                "constraints": [
+                    "UNIQUE(email)",
+                    "FOREIGN KEY(department_id) REFERENCES Department(id)"
+                ],
+                "crdt_type": "LWW_REGISTER",
+                "conflict_resolution": "Last-write-wins with admin override capability"
+            },
+            "Device": {
+                "fields": {
+                    "id": {
+                        "type": "UUID",
+                        "primary_key": true
+                    },
+                    "user_id": {
+                        "type": "UUID",
+                        "foreign_key": "User.id",
+                        "indexed": true
+                    },
+                    "public_key": {
+                        "type": "STRING",
+                        "encrypted": false
+                    },
+                    "device_type": {
+                        "type": "ENUM",
+                        "values": [
+                            "DESKTOP",
+                            "TABLET",
+                            "MOBILE",
+                            "KIOSK"
+                        ]
+                    },
+                    "last_sync_at": {
+                        "type": "TIMESTAMP"
+                    },
+                    "ip_address": {
+                        "type": "STRING",
+                        "optional": true
+                    },
+                    "user_agent": {
+                        "type": "STRING"
+                    },
+                    "revoked": {
+                        "type": "BOOLEAN",
+                        "default": false
+                    },
+                    "revoked_at": {
+                        "type": "TIMESTAMP",
+                        "optional": true
+                    },
+                    "created_at": {
+                        "type": "TIMESTAMP"
+                    }
+                },
+                "constraints": [
+                    "FOREIGN KEY(user_id) REFERENCES User(id)"
+                ],
+                "crdt_type": "MV_REGISTER",
+                "conflict_resolution": "Admin-declared truth for revocation"
+            },
+            "Patient": {
+                "fields": {
+                    "id": {
+                        "type": "UUID",
+                        "primary_key": true
+                    },
+                    "medical_record_number": {
+                        "type": "STRING",
+                        "unique": true,
+                        "encrypted": true
+                    },
+                    "first_name": {
+                        "type": "STRING",
+                        "encrypted": true
+                    },
+                    "last_name": {
+                        "type": "STRING",
+                        "encrypted": true
+                    },
+                    "date_of_birth": {
+                        "type": "DATE",
+                        "encrypted": true
+                    },
+                    "gender": {
+                        "type": "ENUM",
+                        "values": [
+                            "MALE",
+                            "FEMALE",
+                            "OTHER",
+                            "UNKNOWN"
+                        ]
+                    },
+                    "address": {
+                        "type": "JSONB",
+                        "encrypted": true
+                    },
+                    "phone": {
+                        "type": "STRING",
+                        "encrypted": true
+                    },
+                    "email": {
+                        "type": "STRING",
+                        "encrypted": true,
+                        "optional": true
+                    },
+                    "emergency_contact": {
+                        "type": "JSONB",
+                        "encrypted": true
+                    },
+                    "primary_care_physician_id": {
+                        "type": "UUID",
+                        "foreign_key": "User.id",
+                        "optional": true
+                    },
+                    "insurance_info": {
+                        "type": "JSONB",
+                        "encrypted": true
+                    },
+                    "allergies": {
+                        "type": "CRDT_LIST",
+                        "element_type": "Allergy"
+                    },
+                    "active": {
+                        "type": "BOOLEAN",
+                        "default": true
+                    },
+                    "deceased": {
+                        "type": "BOOLEAN",
+                        "default": false
+                    },
+                    "created_at": {
+                        "type": "TIMESTAMP"
+                    },
+                    "updated_at": {
+                        "type": "TIMESTAMP"
+                    }
+                },
+                "constraints": [
+                    "UNIQUE(medical_record_number)",
+                    "FOREIGN KEY(primary_care_physician_id) REFERENCES User(id)"
+                ],
+                "crdt_type": "Composite with LWW_REGISTER for scalar fields, CRDT_LIST for collections",
+                "conflict_resolution": "Field-level LWW, list merge via CRDT"
+            },
+            "ClinicalNote": {
+                "fields": {
+                    "id": {
+                        "type": "UUID",
+                        "primary_key": true
+                    },
+                    "patient_id": {
+                        "type": "UUID",
+                        "foreign_key": "Patient.id",
+                        "indexed": true
+                    },
+                    "author_id": {
+                        "type": "UUID",
+                        "foreign_key": "User.id"
+                    },
+                    "encounter_id": {
+                        "type": "UUID",
+                        "foreign_key": "Encounter.id",
+                        "optional": true
+                    },
+                    "note_type": {
+                        "type": "ENUM",
+                        "values": [
+                            "PROGRESS_NOTE",
+                            "CONSULTATION",
+                            "DISCHARGE_SUMMARY",
+                            "PROCEDURE_NOTE"
+                        ]
+                    },
+                    "content": {
+                        "type": "RICH_TEXT",
+                        "crdt_type": "RGA"
+                    },
+                    "assessment": {
+                        "type": "JSONB",
+                        "crdt_type": "LWW_MAP"
+                    },
+                    "plan": {
+                        "type": "JSONB",
+                        "crdt_type": "LWW_MAP"
+                    },
+                    "subjective": {
+                        "type": "JSONB",
+                        "crdt_type": "LWW_MAP"
+                    },
+                    "objective": {
+                        "type": "JSONB",
+                        "crdt_type": "LWW_MAP"
+                    },
+                    "signature": {
+                        "type": "JSONB",
+                        "contains": [
+                            "signature_data",
+                            "signed_at",
+                            "signer_id"
+                        ]
+                    },
+                    "co_signer_id": {
+                        "type": "UUID",
+                        "foreign_key": "User.id",
+                        "optional": true
+                    },
+                    "status": {
+                        "type": "ENUM",
+                        "values": [
+                            "DRAFT",
+                            "SIGNED",
+                            "AMENDED",
+                            "VOIDED"
+                        ]
+                    },
+                    "created_at": {
+                        "type": "TIMESTAMP"
+                    },
+                    "updated_at": {
+                        "type": "TIMESTAMP"
+                    },
+                    "signed_at": {
+                        "type": "TIMESTAMP",
+                        "optional": true
+                    }
+                },
+                "constraints": [
+                    "FOREIGN KEY(patient_id) REFERENCES Patient(id)",
+                    "FOREIGN KEY(author_id) REFERENCES User(id)",
+                    "FOREIGN KEY(encounter_id) REFERENCES Encounter(id)"
+                ],
+                "crdt_type": "Composite: RGA for content, LWW_MAP for structured fields",
+                "conflict_resolution": "Rich text via RGA, structured fields via LWW"
+            },
+            "Appointment": {
+                "fields": {
+                    "id": {
+                        "type": "UUID",
+                        "primary_key": true
+                    },
+                    "patient_id": {
+                        "type": "UUID",
+                        "foreign_key": "Patient.id",
+                        "indexed": true
+                    },
+                    "provider_id": {
+                        "type": "UUID",
+                        "foreign_key": "User.id",
+                        "indexed": true
+                    },
+                    "room_id": {
+                        "type": "UUID",
+                        "foreign_key": "Room.id",
+                        "optional": true
+                    },
+                    "start_time": {
+                        "type": "TIMESTAMP",
+                        "indexed": true
+                    },
+                    "end_time": {
+                        "type": "TIMESTAMP"
+                    },
+                    "duration": {
+                        "type": "INTEGER"
+                    },
+                    "appointment_type": {
+                        "type": "ENUM",
+                        "values": [
+                            "NEW_PATIENT",
+                            "FOLLOW_UP",
+                            "PROCEDURE",
+                            "CONSULTATION",
+                            "EMERGENCY"
+                        ]
+                    },
+                    "status": {
+                        "type": "ENUM",
+                        "values": [
+                            "SCHEDULED",
+                            "CHECKED_IN",
+                            "IN_ROOM",
+                            "COMPLETED",
+                            "CANCELLED",
+                            "NO_SHOW"
+                        ]
+                    },
+                    "cancellation_reason": {
+                        "type": "STRING",
+                        "optional": true
+                    },
+                    "reason_for_visit": {
+                        "type": "STRING"
+                    },
+                    "check_in_time": {
+                        "type": "TIMESTAMP",
+                        "optional": true
+                    },
+                    "check_out_time": {
+                        "type": "TIMESTAMP",
+                        "optional": true
+                    },
+                    "wait_time": {
+                        "type": "INTEGER",
+                        "optional": true
+                    },
+                    "recurrence_rule": {
+                        "type": "JSONB",
+                        "optional": true
+                    },
+                    "created_at": {
+                        "type": "TIMESTAMP"
+                    },
+                    "updated_at": {
+                        "type": "TIMESTAMP"
+                    }
+                },
+                "constraints": [
+                    "FOREIGN KEY(patient_id) REFERENCES Patient(id)",
+                    "FOREIGN KEY(provider_id) REFERENCES User(id)",
+                    "FOREIGN KEY(room_id) REFERENCES Room(id)",
+                    "CHECK (end_time > start_time)"
+                ],
+                "crdt_type": "MV_REGISTER",
+                "conflict_resolution": "Time-based with resource conflict detection and resolution"
+            },
+            "BillingEntry": {
+                "fields": {
+                    "id": {
+                        "type": "UUID",
+                        "primary_key": true
+                    },
+                    "patient_id": {
+                        "type": "UUID",
+                        "foreign_key": "Patient.id",
+                        "indexed": true
+                    },
+                    "encounter_id": {
+                        "type": "UUID",
+                        "foreign_key": "Encounter.id",
+                        "indexed": true
+                    },
+                    "provider_id": {
+                        "type": "UUID",
+                        "foreign_key": "User.id"
+                    },
+                    "cpt_code": {
+                        "type": "STRING"
+                    },
+                    "icd10_codes": {
+                        "type": "STRING[]"
+                    },
+                    "description": {
+                        "type": "STRING"
+                    },
+                    "units": {
+                        "type": "INTEGER",
+                        "default": 1
+                    },
+                    "unit_price": {
+                        "type": "DECIMAL(10,2)"
+                    },
+                    "total_amount": {
+                        "type": "DECIMAL(10,2)"
+                    },
+                    "insurance_estimated": {
+                        "type": "DECIMAL(10,2)",
+                        "optional": true
+                    },
+                    "patient_responsibility": {
+                        "type": "DECIMAL(10,2)",
+                        "optional": true
+                    },
+                    "status": {
+                        "type": "ENUM",
+                        "values": [
+                            "DRAFT",
+                            "BILLED",
+                            "SUBMITTED",
+                            "PAID",
+                            "DENIED",
+                            "APPEALED"
+                        ]
+                    },
+                    "submitted_at": {
+                        "type": "TIMESTAMP",
+                        "optional": true
+                    },
+                    "paid_at": {
+                        "type": "TIMESTAMP",
+                        "optional": true
+                    },
+                    "denial_reason": {
+                        "type": "STRING",
+                        "optional": true
+                    },
+                    "created_at": {
+                        "type": "TIMESTAMP"
+                    },
+                    "updated_at": {
+                        "type": "TIMESTAMP"
+                    }
+                },
+                "constraints": [
+                    "FOREIGN KEY(patient_id) REFERENCES Patient(id)",
+                    "FOREIGN KEY(encounter_id) REFERENCES Encounter(id)",
+                    "FOREIGN KEY(provider_id) REFERENCES User(id)"
+                ],
+                "crdt_type": "LWW_REGISTER",
+                "conflict_resolution": "Timestamp-based with validation against code master"
+            },
+            "AuditLog": {
+                "fields": {
+                    "id": {
+                        "type": "UUID",
+                        "primary_key": true
+                    },
+                    "event_type": {
+                        "type": "ENUM",
+                        "values": [
+                            "CREATE",
+                            "READ",
+                            "UPDATE",
+                            "DELETE",
+                            "LOGIN",
+                            "LOGOUT",
+                            "EXPORT",
+                            "SYNC"
+                        ]
+                    },
+                    "user_id": {
+                        "type": "UUID",
+                        "foreign_key": "User.id",
+                        "optional": true
+                    },
+                    "device_id": {
+                        "type": "UUID",
+                        "foreign_key": "Device.id",
+                        "optional": true
+                    },
+                    "entity_type": {
+                        "type": "STRING"
+                    },
+                    "entity_id": {
+                        "type": "STRING"
+                    },
+                    "changes": {
+                        "type": "JSONB"
+                    },
+                    "ip_address": {
+                        "type": "STRING",
+                        "optional": true
+                    },
+                    "user_agent": {
+                        "type": "STRING",
+                        "optional": true
+                    },
+                    "timestamp": {
+                        "type": "TIMESTAMP",
+                        "default": "CURRENT_TIMESTAMP"
+                    },
+                    "signature": {
+                        "type": "STRING"
+                    }
+                },
+                "constraints": [],
+                "crdt_type": "APPEND_ONLY_LOG",
+                "conflict_resolution": "Immutable, ordered by timestamp"
+            }
+        },
+        "crdt_configurations": {
+            "LWW_REGISTER": {
+                "implementation": "Timestamp-based last-write-wins register",
+                "conflict_handling": "System clock with NTP sync, tie-breaker by device UUID",
+                "fields_applied": [
+                    "scalar fields with single value"
+                ]
+            },
+            "MV_REGISTER": {
+                "implementation": "Multi-value register with conflict detection",
+                "conflict_handling": "Keep all conflicting values, flag for manual resolution",
+                "fields_applied": [
+                    "status fields, enum fields"
+                ]
+            },
+            "CRDT_LIST": {
+                "implementation": "List CRDT based on RGA (Replicated Growable Array)",
+                "conflict_handling": "Position-based merging with unique IDs per element",
+                "fields_applied": [
+                    "allergies, medications, problems"
+                ]
+            },
+            "RGA": {
+                "implementation": "Replicated Growable Array for rich text",
+                "conflict_handling": "Character-wise merging with unique position IDs",
+                "fields_applied": [
+                    "ClinicalNote.content"
+                ]
+            },
+            "LWW_MAP": {
+                "implementation": "Last-write-wins map for key-value pairs",
+                "conflict_handling": "Key-level LWW resolution",
+                "fields_applied": [
+                    "structured assessment/plan fields"
+                ]
+            }
+        }
+    },
+    "api_specification": {
+        "authentication": {
+            "endpoints": {
+                "/api/v1/auth/login": {
+                    "method": "POST",
+                    "description": "Authenticate user and device",
+                    "request": {
+                        "content-type": "application/json",
+                        "body": {
+                            "email": "string",
+                            "password": "string",
+                            "device_public_key": "string",
+                            "challenge_response": "string"
+                        }
+                    },
+                    "response": {
+                        "success": {
+                            "access_token": "JWT",
+                            "refresh_token": "JWT",
+                            "user": "User object",
+                            "device_token": "string",
+                            "sync_status": "object"
+                        },
+                        "error": {
+                            "code": "AUTH_ERROR",
+                            "message": "string"
+                        }
+                    },
+                    "offline_support": false
+                },
+                "/api/v1/auth/refresh": {
+                    "method": "POST",
+                    "description": "Refresh authentication tokens",
+                    "request": {
+                        "content-type": "application/json",
+                        "body": {
+                            "refresh_token": "string"
+                        }
+                    },
+                    "response": {
+                        "success": {
+                            "access_token": "JWT",
+                            "refresh_token": "JWT"
+                        }
+                    },
+                    "offline_support": false
+                },
+                "/api/v1/auth/offline-token": {
+                    "method": "POST",
+                    "description": "Generate offline-capable token for specified duration",
+                    "request": {
+                        "content-type": "application/json",
+                        "body": {
+                            "duration_hours": "integer",
+                            "device_signature": "string"
+                        }
+                    },
+                    "response": {
+                        "success": {
+                            "offline_token": "JWT",
+                            "valid_until": "timestamp"
+                        }
+                    },
+                    "offline_support": false
+                }
+            }
+        },
+        "sync": {
+            "endpoints": {
+                "/api/v1/sync/push": {
+                    "method": "POST",
+                    "description": "Push local changes to server",
+                    "request": {
+                        "content-type": "application/json",
+                        "body": {
+                            "device_id": "UUID",
+                            "changes": "array of Change objects",
+                            "last_sync_token": "string",
+                            "signature": "string"
+                        }
+                    },
+                    "response": {
+                        "success": {
+                            "accepted_changes": "array",
+                            "conflicts": "array",
+                            "server_changes": "array",
+                            "new_sync_token": "string",
+                            "timestamp": "timestamp"
+                        }
+                    },
+                    "offline_support": false
+                },
+                "/api/v1/sync/pull": {
+                    "method": "GET",
+                    "description": "Pull changes from server since last sync",
+                    "parameters": {
+                        "since": "timestamp",
+                        "entity_types": "comma-separated string"
+                    },
+                    "response": {
+                        "success": {
+                            "changes": "array of Change objects",
+                            "has_more": "boolean",
+                            "next_since": "timestamp"
+                        }
+                    },
+                    "offline_support": false
+                },
+                "/api/v1/sync/status": {
+                    "method": "GET",
+                    "description": "Get sync status and pending changes count",
+                    "response": {
+                        "success": {
+                            "last_sync": "timestamp",
+                            "pending_changes": "integer",
+                            "conflict_count": "integer",
+                            "sync_health": "enum: HEALTHY, WARNING, ERROR"
+                        }
+                    },
+                    "offline_support": true
+                }
+            }
+        },
+        "patients": {
+            "endpoints": {
+                "/api/v1/patients": {
+                    "method": "GET",
+                    "description": "List patients with filtering and pagination",
+                    "parameters": {
+                        "page": "integer",
+                        "limit": "integer",
+                        "search": "string",
+                        "status": "string"
+                    },
+                    "response": {
+                        "success": {
+                            "patients": "array of Patient objects",
+                            "total": "integer",
+                            "page": "integer",
+                            "limit": "integer"
+                        }
+                    },
+                    "offline_support": true,
+                    "cache_strategy": "LRU with offline persistence"
+                },
+                "/api/v1/patients/{id}": {
+                    "method": "GET",
+                    "description": "Get patient by ID",
+                    "response": {
+                        "success": "Patient object with related data"
+                    },
+                    "offline_support": true,
+                    "cache_strategy": "Offline-first with background refresh"
+                },
+                "/api/v1/patients": {
+                    "method": "POST",
+                    "description": "Create new patient",
+                    "request": {
+                        "content-type": "application/json",
+                        "body": "Patient object"
+                    },
+                    "response": {
+                        "success": "Created Patient object"
+                    },
+                    "offline_support": true,
+                    "conflict_handling": "CRDT-based merge on sync"
+                }
+            }
+        },
+        "appointments": {
+            "endpoints": {
+                "/api/v1/appointments/calendar": {
+                    "method": "GET",
+                    "description": "Get calendar view with resources",
+                    "parameters": {
+                        "start_date": "date",
+                        "end_date": "date",
+                        "resource_ids": "comma-separated UUIDs"
+                    },
+                    "response": {
+                        "success": {
+                            "appointments": "array",
+                            "resources": "array",
+                            "time_slots": "array"
+                        }
+                    },
+                    "offline_support": true
+                },
+                "/api/v1/appointments/conflicts": {
+                    "method": "POST",
+                    "description": "Check for scheduling conflicts",
+                    "request": {
+                        "content-type": "application/json",
+                        "body": {
+                            "resource_id": "UUID",
+                            "start_time": "timestamp",
+                            "end_time": "timestamp",
+                            "exclude_appointment_id": "UUID"
+                        }
+                    },
+                    "response": {
+                        "success": {
+                            "has_conflict": "boolean",
+                            "conflicting_appointments": "array"
+                        }
+                    },
+                    "offline_support": true
+                }
+            }
+        },
+        "graphql_endpoint": {
+            "/api/graphql": {
+                "method": "POST",
+                "description": "GraphQL endpoint for complex queries",
+                "schema": "graphql/schema.graphql",
+                "subscriptions": true,
+                "offline_support": "Partial via persisted queries",
+                "caching": "Apollo Client with optimistic updates"
+            }
+        }
+    },
+    "background_jobs": {
+        "sync_engine": {
+            "job_type": "persistent_worker",
+            "description": "Manages offline sync queue and conflict resolution",
+            "triggers": [
+                "network_available",
+                "manual",
+                "scheduled_every_5_minutes"
+            ],
+            "retry_policy": {
+                "max_attempts": 10,
+                "backoff": "exponential",
+                "max_delay": "1 hour"
+            },
+            "error_handling": {
+                "conflicts": "auto_resolve_crdt",
+                "network_errors": "queue_for_retry",
+                "data_errors": "flag_for_review"
+            }
+        },
+        "reminder_service": {
+            "job_type": "scheduled_cron",
+            "description": "Sends appointment reminders via SMS/email",
+            "schedule": "0 */2 * * *",
+            "offline_behavior": "Queue reminders locally, send when online",
+            "retry_policy": {
+                "max_attempts": 3,
+                "backoff": "linear"
+            }
+        },
+        "backup_service": {
+            "job_type": "scheduled_daily",
+            "description": "Creates encrypted backups of local database",
+            "schedule": "0 2 * * *",
+            "retention": {
+                "daily": 7,
+                "weekly": 4,
+                "monthly": 12
+            },
+            "encryption": "AES-256-GCM with rotating keys"
+        },
+        "audit_log_compaction": {
+            "job_type": "scheduled_weekly",
+            "description": "Compresses and archives old audit logs",
+            "schedule": "0 3 * * 0",
+            "retention": "7 years for healthcare compliance",
+            "archive_format": "encrypted_tar_gz"
+        },
+        "code_master_sync": {
+            "job_type": "periodic_sync",
+            "description": "Syncs CPT/ICD-10 code masters from central service",
+            "frequency": "weekly",
+            "offline_fallback": "Use cached version with warning"
+        }
+    },
+    "state_management": {
+        "frontend_state": {
+            "architecture": "Redux Toolkit with RTK Query",
+            "state_slices": {
+                "auth": {
+                    "contains": [
+                        "user",
+                        "device",
+                        "tokens",
+                        "permissions"
+                    ],
+                    "persistence": "encrypted_local_storage"
+                },
+                "sync": {
+                    "contains": [
+                        "queue",
+                        "status",
+                        "conflicts",
+                        "lastSync"
+                    ],
+                    "persistence": "IndexedDB with CRDT"
+                },
+                "ui": {
+                    "contains": [
+                        "theme",
+                        "notifications",
+                        "modals",
+                        "navigation"
+                    ],
+                    "persistence": "session_storage"
+                },
+                "cache": {
+                    "contains": [
+                        "patients",
+                        "appointments",
+                        "providers",
+                        "rooms"
+                    ],
+                    "persistence": "IndexedDB with TTL"
+                }
+            },
+            "middleware": [
+                "redux_persist",
+                "redux_offline",
+                "redux_logger_dev_only"
+            ]
+        },
+        "offline_queue": {
+            "implementation": "Redux Offline with custom sync middleware",
+            "queue_management": "FIFO with priority flags for critical operations",
+            "conflict_detection": "Optimistic updates with version vectors",
+            "retry_logic": "Exponential backoff with user notification"
+        },
+        "local_database": {
+            "primary": "SQLite with CRDT extensions",
+            "schema_versioning": "Migration system with rollback support",
+            "encryption": "SQLCipher with per-device key",
+            "sync_metadata": "Version vectors, last-write timestamps"
+        }
+    },
+    "error_handling": {
+        "error_categories": {
+            "network_errors": {
+                "handling": "Queue operations, retry automatically, show connection status",
+                "user_message": "Working offline. Changes will sync when connection is restored.",
+                "recovery": "Automatic on network restoration"
+            },
+            "sync_conflicts": {
+                "handling": "CRDT auto-resolution, flag complex conflicts for review",
+                "user_message": "Conflict detected. Auto-merged changes. Review flagged items.",
+                "recovery": "Conflict resolution UI with side-by-side comparison"
+            },
+            "validation_errors": {
+                "handling": "Immediate feedback, prevent invalid state persistence",
+                "user_message": "Please correct the highlighted fields.",
+                "recovery": "Form validation with specific error messages"
+            },
+            "permission_errors": {
+                "handling": "Log attempt, show appropriate message, redirect if needed",
+                "user_message": "You don't have permission to perform this action.",
+                "recovery": "Redirect to authorized section or request elevation"
+            },
+            "system_errors": {
+                "handling": "Log with context, show generic error, preserve user data",
+                "user_message": "System error. Your data has been saved locally.",
+                "recovery": "Restart application, restore from backup if needed"
+            }
+        },
+        "error_logging": {
+            "client_side": {
+                "tool": "Sentry with offline queuing",
+                "capture": [
+                    "errors",
+                    "warnings",
+                    "user_actions",
+                    "performance"
+                ],
+                "anonymization": "PII stripping, patient data never logged"
+            },
+            "server_side": {
+                "tool": "ELK stack (Elasticsearch, Logstash, Kibana)",
+                "retention": "90 days standard, 7 years for audit-related"
+            }
+        },
+        "error_recovery": {
+            "auto_recovery": [
+                "network_errors",
+                "temporary_lock_errors"
+            ],
+            "manual_recovery": [
+                "data_corruption",
+                "sync_conflicts"
+            ],
+            "admin_intervention": [
+                "system_failures",
+                "security_breaches"
+            ]
+        }
+    },
+    "permissions_system": {
+        "rbac_matrix": {
+            "PHYSICIAN": {
+                "patients": [
+                    "read",
+                    "write",
+                    "create"
+                ],
+                "appointments": [
+                    "read",
+                    "write",
+                    "create"
+                ],
+                "clinical_notes": [
+                    "read",
+                    "write",
+                    "create",
+                    "sign"
+                ],
+                "prescriptions": [
+                    "read",
+                    "write",
+                    "create",
+                    "sign"
+                ],
+                "billing": [
+                    "read"
+                ],
+                "reports": [
+                    "read"
+                ],
+                "settings": [
+                    "read_own"
+                ]
+            },
+            "NURSE": {
+                "patients": [
+                    "read",
+                    "write"
+                ],
+                "appointments": [
+                    "read",
+                    "write"
+                ],
+                "clinical_notes": [
+                    "read",
+                    "write"
+                ],
+                "medication_administration": [
+                    "read",
+                    "write",
+                    "create"
+                ],
+                "vitals": [
+                    "read",
+                    "write",
+                    "create"
+                ],
+                "billing": [
+                    "read"
+                ],
+                "settings": [
+                    "read_own"
+                ]
+            },
+            "RECEPTIONIST": {
+                "patients": [
+                    "read",
+                    "write",
+                    "create"
+                ],
+                "appointments": [
+                    "read",
+                    "write",
+                    "create",
+                    "cancel"
+                ],
+                "billing": [
+                    "read",
+                    "create_charges"
+                ],
+                "clinical_notes": [
+                    "read"
+                ],
+                "settings": [
+                    "read_own"
+                ]
+            },
+            "BILLING_SPECIALIST": {
+                "patients": [
+                    "read"
+                ],
+                "appointments": [
+                    "read"
+                ],
+                "clinical_notes": [
+                    "read"
+                ],
+                "billing": [
+                    "read",
+                    "write",
+                    "create",
+                    "submit",
+                    "adjust"
+                ],
+                "reports": [
+                    "read_financial"
+                ],
+                "settings": [
+                    "read_own"
+                ]
+            },
+            "ADMIN": {
+                "all": [
+                    "read",
+                    "write",
+                    "create",
+                    "delete",
+                    "manage"
+                ],
+                "settings": [
+                    "read",
+                    "write",
+                    "create",
+                    "delete"
+                ],
+                "users": [
+                    "read",
+                    "write",
+                    "create",
+                    "delete"
+                ],
+                "audit": [
+                    "read",
+                    "export"
+                ],
+                "system": [
+                    "configure",
+                    "maintain",
+                    "backup",
+                    "restore"
+                ]
+            },
+            "PATIENT": {
+                "own_data": [
+                    "read"
+                ],
+                "appointments": [
+                    "read_own",
+                    "create_own",
+                    "cancel_own"
+                ],
+                "messages": [
+                    "read",
+                    "create"
+                ],
+                "billing": [
+                    "read_own",
+                    "pay"
+                ]
+            }
+        },
+        "attribute_based_rules": {
+            "department_scoping": {
+                "rule": "User can only access resources within their assigned department(s)",
+                "implementation": "Query filtering at database level",
+                "override": "Cross-department consultations with explicit consent"
+            },
+            "patient_privacy": {
+                "rule": "Access to sensitive patient data requires additional justification",
+                "implementation": "Break-glass access with audit trail",
+                "sensitive_data": [
+                    "HIV_status",
+                    "mental_health",
+                    "substance_abuse"
+                ]
+            },
+            "time_based_access": {
+                "rule": "Some permissions are time-limited",
+                "examples": [
+                    "temporary_access_for_covering_provider",
+                    "emergency_override_expiry"
+                ]
+            }
+        },
+        "permission_enforcement": {
+            "frontend": "Component-level guards, disabled UI elements",
+            "backend": "Middleware on all endpoints, query filtering",
+            "database": "Row-level security where supported",
+            "audit": "All permission checks logged"
+        }
+    },
+    "analytics": {
+        "tracked_metrics": {
+            "operational": {
+                "appointment_metrics": [
+                    "scheduled",
+                    "completed",
+                    "cancelled",
+                    "no_show_rate",
+                    "wait_time"
+                ],
+                "patient_flow": [
+                    "new_patients",
+                    "returning_patients",
+                    "patient_satisfaction"
+                ],
+                "resource_utilization": [
+                    "room_usage",
+                    "provider_productivity",
+                    "equipment_usage"
+                ]
+            },
+            "financial": {
+                "revenue_cycle": [
+                    "claims_submitted",
+                    "claims_paid",
+                    "denial_rate",
+                    "days_in_AR",
+                    "collection_rate"
+                ],
+                "procedure_metrics": [
+                    "top_procedures",
+                    "revenue_by_procedure",
+                    "cost_analysis"
+                ]
+            },
+            "clinical": {
+                "quality_metrics": [
+                    "readmission_rate",
+                    "infection_rate",
+                    "medication_errors",
+                    "outcome_measures"
+                ],
+                "population_health": [
+                    "chronic_disease_management",
+                    "preventive_care_gaps",
+                    "risk_scores"
+                ]
+            },
+            "system": {
+                "performance": [
+                    "sync_success_rate",
+                    "offline_duration",
+                    "user_engagement",
+                    "feature_usage"
+                ],
+                "reliability": [
+                    "uptime",
+                    "error_rates",
+                    "backup_success",
+                    "security_events"
+                ]
+            }
+        },
+        "analytics_implementation": {
+            "client_side": {
+                "library": "PostHog with offline queuing",
+                "data_collection": [
+                    "automatic_pageviews",
+                    "custom_events",
+                    "user_properties"
+                ],
+                "privacy": "Anonymized where possible, healthcare data never sent"
+            },
+            "server_side": {
+                "pipeline": "Apache Kafka → Apache Flink → ClickHouse",
+                "real_time": "WebSocket streams for operational dashboards",
+                "batch": "Nightly ETL for historical analysis"
+            },
+            "reporting": {
+                "built_in": "Dynamic dashboards with drag-and-drop",
+                "scheduled": "Email/PDF reports on custom schedules",
+                "export": "CSV, Excel, PDF formats"
+            }
+        },
+        "data_retention": {
+            "real_time": "30 days",
+            "aggregated": "5 years",
+            "archival": "Indefinite in cold storage for compliance"
+        }
+    },
+    "security": {
+        "encryption": {
+            "data_at_rest": {
+                "algorithm": "AES-256-GCM",
+                "key_management": "Hardware Security Module (HSM) for root keys, per-tenant key derivation",
+                "local_device": "SQLCipher with device-specific key stored in secure enclave"
+            },
+            "data_in_transit": {
+                "protocol": "TLS 1.3 with PFS (Perfect Forward Secrecy)",
+                "certificates": "Let's Encrypt for public, private CA for internal",
+                "mutual_tls": "For device-to-server communication"
+            },
+            "end_to_end": {
+                "implementation": "Double ratchet algorithm for sensitive data",
+                "use_cases": [
+                    "patient-clinician messaging",
+                    "sensitive document sharing"
+                ],
+                "key_exchange": "X3DH with Curve25519"
+            }
+        },
+        "authentication": {
+            "primary": "FIDO2/WebAuthn with hardware keys",
+            "fallback": "Time-based OTP (TOTP) with 6 digits, 30-second window",
+            "emergency": "Break-glass procedure with dual admin approval",
+            "session_management": {
+                "access_token_ttl": "15 minutes",
+                "refresh_token_ttl": "7 days",
+                "offline_token_ttl": "24 hours",
+                "concurrent_sessions": 5
+            }
+        },
+        "authorization": {
+            "framework": "Zanzibar-inspired relationship-based",
+            "evaluation": "Realtime with caching",
+            "audit": "Every authorization decision logged"
+        },
+        "audit_logging": {
+            "requirements": "Non-repudiation, integrity, confidentiality",
+            "implementation": "Merkle tree of logs, periodic anchoring to blockchain",
+            "retention": "7 years minimum, encrypted archival",
+            "verification": "Public verification endpoint for auditors"
+        },
+        "vulnerability_management": {
+            "scanning": "Weekly dependency scanning, monthly penetration testing",
+            "patching": "Critical patches within 24 hours, regular within 7 days",
+            "bug_bounty": "Public program with healthcare focus"
+        },
+        "compliance": {
+            "hipaa": {
+                "addressable_requirements": [
+                    "164.308",
+                    "164.310",
+                    "164.312"
+                ],
+                "implementation": "Business Associate Agreement (BAA) with all vendors, regular risk assessments"
+            },
+            "gdpr": {
+                "implementation": "Data Protection Officer (DPO), Data Processing Agreements, privacy by design"
+            },
+            "hippa": {
+                "implementation": "Technical safeguards per §170.315"
+            }
+        }
+    },
+    "performance_considerations": {
+        "frontend": {
+            "bundle_size": {
+                "target": "< 2MB initial load, < 5MB total",
+                "strategies": [
+                    "Code splitting",
+                    "Tree shaking",
+                    "Lazy loading",
+                    "WASM compression"
+                ]
+            },
+            "render_performance": {
+                "target": "60 FPS consistently",
+                "strategies": [
+                    "Virtual scrolling",
+                    "Memoization",
+                    "CSS containment",
+                    "Optimized re-renders"
+                ]
+            },
+            "offline_first": {
+                "strategies": [
+                    "Service worker with stale-while-revalidate",
+                    "IndexedDB for large datasets",
+                    "Background sync API"
+                ]
+            }
+        },
+        "backend": {
+            "api_response": {
+                "target": "P95 < 100ms for core endpoints",
+                "strategies": [
+                    "Edge caching",
+                    "Database indexing",
+                    "Query optimization",
+                    "Connection pooling"
+                ]
+            },
+            "sync_performance": {
+                "target": "10,000 changes/second per node",
+                "strategies": [
+                    "Delta encoding",
+                    "Binary protocol",
+                    "Batch processing",
+                    "Parallel sync streams"
+                ]
+            },
+            "database": {
+                "strategies": [
+                    "Read replicas",
+                    "Sharding by tenant",
+                    "Materialized views",
+                    "Query plan analysis"
+                ]
+            }
+        },
+        "scalability": {
+            "horizontal": {
+                "strategy": "Stateless services with shared-nothing architecture",
+                "load_balancing": "Round-robin with health checks",
+                "auto_scaling": "Based on CPU, memory, and queue depth"
+            },
+            "vertical": {
+                "strategy": "Optimize single-node performance first",
+                "resource_allocation": "Dynamic based on workload patterns"
+            }
+        }
+    },
+    "scalability_strategies": {
+        "data_sharding": {
+            "strategy": "Tenant-based sharding with cross-tenant queries via federation",
+            "shard_key": "organization_id",
+            "rebalancing": "Online with minimal downtime"
+        },
+        "caching_layers": {
+            "client_side": "Service worker + IndexedDB for offline data",
+            "edge_caching": "Cloudflare Workers with KV storage",
+            "application_cache": "Redis cluster with read-through/write-through patterns",
+            "database_cache": "Materialized views and query cache"
+        },
+        "message_queues": {
+            "primary": "Apache Kafka for event sourcing and stream processing",
+            "secondary": "Redis Streams for real-time notifications",
+            "dead_letter": "SQS with alerting for failed messages"
+        },
+        "database_replication": {
+            "primary": "CockroachDB with multi-region deployment",
+            "read_replicas": "3+ per region for read scaling",
+            "backup": "Continuous to object storage with point-in-time recovery"
+        },
+        "cdn_and_static_assets": {
+            "provider": "Cloudflare or AWS CloudFront",
+            "strategy": "Global distribution with edge compute",
+            "dynamic_content": "API acceleration via edge workers"
+        }
+    },
+    "testing_strategy": {
+        "unit_tests": {
+            "coverage_target": "90% for business logic, 80% overall",
+            "frameworks": {
+                "rust": "cargo test with criterion for benchmarks",
+                "typescript": "Jest with coverage reporting",
+                "frontend": "React Testing Library for components"
+            },
+            "test_doubles": "Mockall for Rust, jest.mock for TypeScript"
+        },
+        "integration_tests": {
+            "scope": "API endpoints, database interactions, external services",
+            "frameworks": {
+                "api": "Postman/Newman with collection runner",
+                "database": "Test containers with isolated databases",
+                "sync": "Custom framework for CRDT behavior"
+            },
+            "environment": "Docker-compose with all dependencies"
+        },
+        "end_to_end_tests": {
+            "scope": "Critical user journeys across platforms",
+            "frameworks": {
+                "web": "Playwright with cross-browser testing",
+                "mobile": "Appium for iOS/Android",
+                "desktop": "Custom Tauri test runner"
+            },
+            "coverage": "All priority 1 user stories"
+        },
+        "performance_tests": {
+            "types": [
+                "Load testing",
+                "Stress testing",
+                "Soak testing",
+                "Spike testing"
+            ],
+            "tools": [
+                "k6 for API load",
+                "Lighthouse for web perf",
+                "Instruments for native"
+            ],
+            "targets": {
+                "api_response": "P99 < 200ms under production load",
+                "concurrent_users": "Simulate 10x expected load",
+                "memory_usage": "No leaks over 24-hour soak test"
+            }
+        },
+        "security_tests": {
+            "static_analysis": [
+                "cargo-audit for Rust",
+                "npm audit for JS",
+                "snyk for dependencies"
+            ],
+            "dynamic_analysis": [
+                "OWASP ZAP for web scanning",
+                "Burp Suite for API testing"
+            ],
+            "penetration": "Quarterly external pen tests",
+            "compliance": "Automated HIPAA/GDPR checklist validation"
+        },
+        "offline_testing": {
+            "strategies": [
+                "Network throttling",
+                "Airplane mode simulation",
+                "Sync conflict scenarios"
+            ],
+            "tooling": "Custom network simulation framework"
+        },
+        "test_automation": {
+            "ci_integration": "Run on every PR, block merges on failure",
+            "reporting": "Allure reports with screenshots and videos",
+            "flaky_test_management": "Automatic quarantine and investigation"
+        }
+    },
+    "ci_cd": {
+        "version_control": {
+            "provider": "GitHub Enterprise",
+            "branch_strategy": "Trunk-based development with feature flags",
+            "commit_conventions": "Conventional commits with semantic release",
+            "code_review": "Required 2 approvals, automated checks"
+        },
+        "continuous_integration": {
+            "provider": "GitHub Actions",
+            "workflows": {
+                "pr_validation": {
+                    "triggers": [
+                        "pull_request"
+                    ],
+                    "jobs": [
+                        "lint",
+                        "unit_tests",
+                        "build",
+                        "security_scan"
+                    ],
+                    "requirements": [
+                        "All jobs pass before merge"
+                    ]
+                },
+                "nightly_build": {
+                    "triggers": [
+                        "schedule: 0 2 * * *"
+                    ],
+                    "jobs": [
+                        "integration_tests",
+                        "performance_tests",
+                        "e2e_tests"
+                    ],
+                    "artifacts": [
+                        "test_reports",
+                        "coverage_reports"
+                    ]
+                }
+            },
+            "parallelization": "Matrix builds for cross-platform testing"
+        },
+        "continuous_deployment": {
+            "environments": {
+                "development": {
+                    "deployment": "Automatic on merge to main",
+                    "strategy": "Blue-green with canary testing",
+                    "validation": "Smoke tests, integration tests"
+                },
+                "staging": {
+                    "deployment": "Manual approval required",
+                    "strategy": "Full deployment with data migration dry-run",
+                    "validation": "Full regression suite, UAT by stakeholders"
+                },
+                "production": {
+                    "deployment": "Scheduled maintenance windows",
+                    "strategy": "Rolling updates with health checks",
+                    "validation": "A/B testing, feature flag rollout",
+                    "rollback": "Automated with 5-minute RTO"
+                }
+            },
+            "release_channels": {
+                "stable": "All users, monthly releases",
+                "beta": "Volunteer clinics, bi-weekly",
+                "alpha": "Internal testing, daily"
+            }
+        },
+        "infrastructure_as_code": {
+            "tool": "Terraform with Terragrunt for environments",
+            "state_management": "Remote backend with locking",
+            "module_registry": "Private registry for reusable components",
+            "drift_detection": "Daily scans with automatic remediation"
+        },
+        "monitoring_and_rollback": {
+            "health_checks": [
+                "Application health",
+                "Database connectivity",
+                "Sync engine status"
+            ],
+            "metrics": [
+                "Error rates",
+                "Response times",
+                "Business metrics"
+            ],
+            "alerts": "PagerDuty with escalation policies",
+            "rollback_trigger": "Automated on critical error detection"
+        }
+    },
+    "deployment_architecture": {
+        "on_premise": {
+            "minimum_hardware": {
+                "server": "8 CPU cores, 32GB RAM, 1TB SSD, Gigabit NIC",
+                "client": "Dual-core, 8GB RAM, 128GB storage"
+            },
+            "installer": "Single binary with embedded dependencies",
+            "networking": {
+                "internal": "HTTPS on port 443, optional LAN-only mode",
+                "external": "Optional reverse proxy for remote access"
+            },
+            "backup": "Automated to local storage + optional cloud sync"
+        },
+        "cloud_hosted": {
+            "provider": "AWS with multi-region deployment",
+            "services": {
+                "compute": "EKS for orchestration, Fargate for serverless",
+                "database": "CockroachDB Dedicated with multi-AZ",
+                "storage": "S3 with versioning and lifecycle policies",
+                "networking": "VPC with security groups, CloudFront for CDN",
+                "security": "AWS KMS for encryption, IAM for access control"
+            },
+            "disaster_recovery": {
+                "rpo": "< 5 minutes",
+                "rto": "< 15 minutes",
+                "strategy": "Active-active across regions"
+            }
+        },
+        "hybrid": {
+            "architecture": "Edge nodes sync with central cloud",
+            "sync_topology": "Hub-and-spoke with peer-to-peer fallback",
+            "data_sovereignty": "Patient data stays on-premise, analytics in cloud"
+        }
+    },
+    "environment_configuration": {
+        "environment_variables": {
+            "required": {
+                "DATABASE_URL": "Connection string for primary database",
+                "REDIS_URL": "Connection string for Redis cache",
+                "ENCRYPTION_KEY_ID": "KMS key ID for data encryption",
+                "JWT_SECRET": "Secret for signing JWTs",
+                "SYNC_SERVER_URL": "URL for sync server (optional)"
+            },
+            "optional": {
+                "LOG_LEVEL": "debug, info, warn, error",
+                "FEATURE_FLAGS": "Comma-separated list of enabled features",
+                "ANALYTICS_ENABLED": "true/false",
+                "BACKUP_SCHEDULE": "Cron expression for backups"
+            },
+            "secrets_management": "HashiCorp Vault or AWS Secrets Manager"
+        },
+        "configuration_files": {
+            "application": {
+                "path": "config/application.yml",
+                "format": "YAML with environment-specific overrides",
+                "contents": [
+                    "feature_toggles",
+                    "business_rules",
+                    "ui_configuration"
+                ]
+            },
+            "database": {
+                "path": "config/database.yml",
+                "format": "YAML with connection pooling settings"
+            },
+            "sync": {
+                "path": "config/sync.yml",
+                "format": "YAML with conflict resolution policies"
+            }
+        },
+        "feature_flags": {
+            "provider": "LaunchDarkly with offline support",
+            "flag_types": [
+                "release flags",
+                "experiment flags",
+                "operational flags"
+            ],
+            "evaluation": "Local with periodic sync from server"
+        }
+    },
+    "documentation_structure": {
+        "developer_docs": {
+            "api_reference": {
+                "format": "OpenAPI 3.0 with Swagger UI",
+                "location": "/api/docs",
+                "examples": "cURL, JavaScript, Python, Go"
+            },
+            "architecture": {
+                "decisions": "ADR (Architecture Decision Records) in docs/adr/",
+                "diagrams": "PlantUML source in docs/diagrams/",
+                "data_models": "ERD and CRDT specifications"
+            },
+            "setup_and_deployment": {
+                "development": "Local setup with Docker",
+                "production": "Infrastructure as code and deployment guides",
+                "troubleshooting": "Common issues and solutions"
+            }
+        },
+        "user_documentation": {
+            "role_based_guides": {
+                "clinicians": "Patient management, documentation workflows",
+                "administrative": "Billing, scheduling, reporting",
+                "patients": "Portal usage, communication features"
+            },
+            "training_materials": {
+                "videos": "Short task-based tutorials",
+                "interactive": "In-app guided tours",
+                "certification": "Completion certificates for training"
+            }
+        },
+        "compliance_docs": {
+            "hipaa_compliance": {
+                "baa": "Business Associate Agreement templates",
+                "risk_assessment": "Annual risk assessment documentation",
+                "incident_response": "Breach notification procedures"
+            },
+            "gdpr_compliance": {
+                "dpa": "Data Processing Agreement",
+                "privacy_policy": "Patient-facing privacy notice",
+                "data_inventory": "Register of processing activities"
+            }
+        },
+        "operational_docs": {
+            "runbooks": {
+                "deployment": "Step-by-step deployment procedures",
+                "monitoring": "Dashboard interpretation and alert response",
+                "disaster_recovery": "Failover and restoration procedures"
+            },
+            "support": {
+                "knowledge_base": "Searchable FAQ and troubleshooting",
+                "escalation": "Support contact matrix and SLAs"
+            }
+        }
+    },
+    "technology_stack": {
+        "justification": "Selected for safety, performance, offline capability, and healthcare compliance",
+        "runtime": {
+            "language": "Rust",
+            "justification": "Memory safety, zero-cost abstractions, excellent concurrency, WASM compilation target, deterministic execution",
+            "key_crates": [
+                "tokio",
+                "sqlx",
+                "serde",
+                "warp",
+                "wasmtime",
+                "ring"
+            ]
+        },
+        "frontend": {
+            "desktop": {
+                "framework": "Tauri",
+                "justification": "Small bundle size, security-focused, uses system webview, Rust backend, perfect for offline-first",
+                "ui_framework": "SvelteKit",
+                "justification": "Compile-time optimizations, small runtime, excellent reactivity, easy offline PWA support"
+            },
+            "mobile": {
+                "framework": "React Native with Reanimated 3",
+                "justification": "Cross-platform with near-native performance, large ecosystem, offline storage solutions",
+                "state_management": "Zustand with MMKV for persistence",
+                "justification": "Simple, fast, synchronous storage access critical for offline"
+            },
+            "web": {
+                "framework": "SvelteKit with adapter-static for offline PWA",
+                "justification": "SEO capable, progressive enhancement, excellent offline support via service workers"
+            }
+        },
+        "database": {
+            "local": {
+                "primary": "SQLite with sqlcipher",
+                "justification": "Embedded, zero-config, excellent offline support, battle-tested, encryption built-in",
+                "crdt_layer": "Automerge-Rust",
+                "justification": "Production-ready CRDTs, efficient binary format, good performance characteristics"
+            },
+            "central": {
+                "primary": "CockroachDB",
+                "justification": "PostgreSQL-compatible, horizontally scalable, strong consistency, multi-region deployment",
+                "caching": "Redis with RedisJSON",
+                "justification": "In-memory performance, data structure server, pub/sub for real-time updates"
+            }
+        },
+        "sync_engine": {
+            "protocol": "Custom binary over gRPC with WebRTC fallback",
+            "justification": "gRPC for efficiency and type safety, WebRTC for direct P2P sync in offline clusters",
+            "conflict_resolution": "CRDT-based with operational transformation for text",
+            "justification": "Deterministic merging, no data loss, handles complex offline scenarios"
+        },
+        "infrastructure": {
+            "containerization": "Docker with multi-stage builds",
+            "justification": "Reproducible environments, efficient layer caching, cross-platform",
+            "orchestration": "Kubernetes (EKS/GKE) with K3s for edge",
+            "justification": "Industry standard, self-healing, scalable, K3s for resource-constrained environments",
+            "monitoring": "Prometheus, Grafana, Loki, Tempo",
+            "justification": "CNCF stack, integrates well, handles metrics, logs, traces uniformly"
+        },
+        "security": {
+            "authentication": "FIDO2/WebAuthn with passkeys",
+            "justification": "Passwordless, phishing-resistant, hardware-backed, emerging standard",
+            "encryption": "libsodium (via Rust bindings)",
+            "justification": "Audited, hard-to-misuse API, modern algorithms",
+            "key_management": "Hashicorp Vault with auto-unseal",
+            "justification": "Comprehensive secret management, dynamic secrets, encryption as a service"
+        }
+    },
+    "ios_26_design_system": {
+        "design_principles": {
+            "clarity": "Text is legible at every size, icons are precise and lucid, adornments are subtle and appropriate",
+            "deference": "Fluid motion and crisp, beautiful interface help users understand content without competing with it",
+            "depth": "Distinct visual layers and realistic motion convey hierarchy, impart vitality, and facilitate understanding"
+        },
+        "layout_system": {
+            "grid": {
+                "base_unit": 8,
+                "columns": {
+                    "compact": 4,
+                    "regular": 8,
+                    "expanded": 12
+                },
+                "margins": {
+                    "compact": 16,
+                    "regular": 20,
+                    "expanded": 24
+                },
+                "gutter": 8
+            },
+            "spacing_scale": [
+                4,
+                8,
+                12,
+                16,
+                20,
+                24,
+                32,
+                40,
+                48,
+                56,
+                64,
+                72,
+                80
+            ],
+            "responsive_breakpoints": {
+                "compact": "width < 600",
+                "regular": "600 ≤ width < 840",
+                "expanded": "width ≥ 840"
+            }
+        },
+        "typography": {
+            "font_family": {
+                "primary": "SF Pro Display",
+                "secondary": "SF Pro Text",
+                "monospace": "SF Mono"
+            },
+            "type_scale": {
+                "largeTitle": {
+                    "size": 34,
+                    "weight": "Regular",
+                    "tracking": 0.37
+                },
+                "title1": {
+                    "size": 28,
+                    "weight": "Regular",
+                    "tracking": 0.34
+                },
+                "title2": {
+                    "size": 22,
+                    "weight": "Regular",
+                    "tracking": 0.35
+                },
+                "title3": {
+                    "size": 20,
+                    "weight": "Regular",
+                    "tracking": 0.38
+                },
+                "headline": {
+                    "size": 17,
+                    "weight": "Semibold",
+                    "tracking": -0.41
+                },
+                "body": {
+                    "size": 17,
+                    "weight": "Regular",
+                    "tracking": -0.41
+                },
+                "callout": {
+                    "size": 16,
+                    "weight": "Regular",
+                    "tracking": -0.32
+                },
+                "subhead": {
+                    "size": 15,
+                    "weight": "Regular",
+                    "tracking": -0.24
+                },
+                "footnote": {
+                    "size": 13,
+                    "weight": "Regular",
+                    "tracking": -0.08
+                },
+                "caption1": {
+                    "size": 12,
+                    "weight": "Regular",
+                    "tracking": 0
+                },
+                "caption2": {
+                    "size": 11,
+                    "weight": "Regular",
+                    "tracking": 0.07
+                }
+            },
+            "dynamic_type": {
+                "supported_sizes": [
+                    "xs",
+                    "s",
+                    "m",
+                    "l",
+                    "xl",
+                    "xxl",
+                    "xxxl",
+                    "accessibilityM",
+                    "accessibilityL",
+                    "accessibilityXL"
+                ],
+                "scaling_rules": "Geometric scaling with caps at accessibility sizes"
+            }
+        },
+        "color_system": {
+            "semantic_colors": {
+                "primary": {
+                    "light": "#007AFF",
+                    "dark": "#0A84FF"
+                },
+                "secondary": {
+                    "light": "#5856D6",
+                    "dark": "#5E5CE6"
+                },
+                "tertiary": {
+                    "light": "#007AFF",
+                    "dark": "#64D2FF"
+                },
+                "success": {
+                    "light": "#34C759",
+                    "dark": "#30D158"
+                },
+                "warning": {
+                    "light": "#FF9500",
+                    "dark": "#FF9F0A"
+                },
+                "error": {
+                    "light": "#FF3B30",
+                    "dark": "#FF453A"
+                },
+                "background": {
+                    "primary": {
+                        "light": "#FFFFFF",
+                        "dark": "#000000"
+                    },
+                    "secondary": {
+                        "light": "#F2F2F7",
+                        "dark": "#1C1C1E"
+                    },
+                    "tertiary": {
+                        "light": "#FFFFFF",
+                        "dark": "#2C2C2E"
+                    }
+                },
+                "label": {
+                    "primary": {
+                        "light": "#000000",
+                        "dark": "#FFFFFF"
+                    },
+                    "secondary": {
+                        "light": "#3C3C43",
+                        "dark": "#EBEBF5"
+                    },
+                    "tertiary": {
+                        "light": "#3C3C43",
+                        "dark": "#EBEBF5"
+                    },
+                    "quaternary": {
+                        "light": "#3C3C43",
+                        "dark": "#EBEBF5"
+                    }
+                },
+                "fill": {
+                    "primary": {
+                        "light": "#787880",
+                        "dark": "#787880"
+                    },
+                    "secondary": {
+                        "light": "#787880",
+                        "dark": "#787880"
+                    },
+                    "tertiary": {
+                        "light": "#767680",
+                        "dark": "#767680"
+                    },
+                    "quaternary": {
+                        "light": "#747480",
+                        "dark": "#747480"
+                    }
+                }
+            },
+            "healthcare_specific": {
+                "clinical_attention": {
+                    "light": "#FF2D55",
+                    "dark": "#FF375F"
+                },
+                "lab_critical": {
+                    "light": "#BF5AF2",
+                    "dark": "#BF5AF2"
+                },
+                "medication_active": {
+                    "light": "#32D74B",
+                    "dark": "#30D158"
+                },
+                "allergy_alert": {
+                    "light": "#FF9500",
+                    "dark": "#FF9F0A"
+                }
+            },
+            "elevation": {
+                "levels": {
+                    "0": {
+                        "opacity": 0
+                    },
+                    "1": {
+                        "opacity": 0.05
+                    },
+                    "2": {
+                        "opacity": 0.08
+                    },
+                    "3": {
+                        "opacity": 0.11
+                    },
+                    "4": {
+                        "opacity": 0.12
+                    },
+                    "5": {
+                        "opacity": 0.14
+                    }
+                }
+            }
+        },
+        "motion": {
+            "timing_curves": {
+                "standard": {
+                    "cubic_bezier": [
+                        0.2,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "duration": 0.4
+                },
+                "decelerate": {
+                    "cubic_bezier": [
+                        0.0,
+                        0.0,
+                        0.2,
+                        1.0
+                    ],
+                    "duration": 0.4
+                },
+                "accelerate": {
+                    "cubic_bezier": [
+                        0.3,
+                        0.0,
+                        1.0,
+                        1.0
+                    ],
+                    "duration": 0.4
+                },
+                "standard_emphasis": {
+                    "cubic_bezier": [
+                        0.2,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "duration": 0.5
+                }
+            },
+            "spring_parameters": {
+                "default": {
+                    "mass": 1,
+                    "stiffness": 170,
+                    "damping": 26
+                },
+                "comfortable": {
+                    "mass": 1,
+                    "stiffness": 120,
+                    "damping": 14
+                },
+                "responsive": {
+                    "mass": 1,
+                    "stiffness": 280,
+                    "damping": 30
+                }
+            },
+            "transitions": {
+                "push": {
+                    "type": "horizontal_slide",
+                    "duration": 0.35,
+                    "curve": "standard"
+                },
+                "modal": {
+                    "type": "vertical_slide",
+                    "duration": 0.4,
+                    "curve": "decelerate"
+                },
+                "fade": {
+                    "type": "opacity",
+                    "duration": 0.3,
+                    "curve": "standard"
+                }
+            }
+        },
+        "haptics": {
+            "notification": {
+                "success": "notification(type: .success)",
+                "warning": "notification(type: .warning)",
+                "error": "notification(type: .error)"
+            },
+            "impact": {
+                "light": "impact(style: .light)",
+                "medium": "impact(style: .medium)",
+                "heavy": "impact(style: .heavy)",
+                "rigid": "impact(style: .rigid)",
+                "soft": "impact(style: .soft)"
+            },
+            "selection": "selectionChanged()",
+            "contextual_usage": {
+                "button_press": "impact(style: .light)",
+                "toggle_switch": "impact(style: .rigid)",
+                "refresh_complete": "notification(type: .success)",
+                "critical_alert": "notification(type: .error) repeated 2 times"
+            }
+        },
+        "accessibility": {
+            "dynamic_type": {
+                "support": "Full support for all Apple text styles",
+                "scaling": "Content scales up to xxxl and accessibility sizes"
+            },
+            "voiceover": {
+                "hints": "Context-appropriate hints for all interactive elements",
+                "labels": "Custom accessibility labels for complex components",
+                "traits": "Proper accessibility traits for all controls"
+            },
+            "switch_control": {
+                "support": "Full keyboard navigation with custom groups",
+                "focus_management": "Logical focus order following visual layout"
+            },
+            "reduced_motion": {
+                "support": "Alternative animations and transitions",
+                "prefers_reduced_motion": "Respects system setting"
+            },
+            "color_contrast": {
+                "minimum_ratio": "4.5:1 for normal text, 3:1 for large text",
+                "testing": "Automated contrast checking in CI pipeline"
+            },
+            "assistive_technologies": {
+                "voiceover": "Full compatibility",
+                "switch_control": "Full compatibility",
+                "voice_control": "Custom commands for common workflows"
+            }
+        },
+        "navigation_patterns": {
+            "hierarchical": {
+                "usage": "Drill-down navigation (e.g., Patient List → Patient Detail → Clinical Notes)",
+                "back_button": "Title of previous screen",
+                "animation": "Push/pop with horizontal slide"
+            },
+            "flat": {
+                "usage": "Switching between peer sections (e.g., Today, Patients, Schedule)",
+                "implementation": "Tab bar with maximum 5 items",
+                "selected_state": "Fill icon with label"
+            },
+            "content-driven": {
+                "usage": "Modal presentations for focused tasks",
+                "presentation_styles": [
+                    "pageSheet",
+                    "formSheet",
+                    "fullScreen"
+                ],
+                "dismissal": "Swipe down for sheet, dedicated close button for full screen"
+            },
+            "split_view": {
+                "usage": "iPad and macOS primary navigation",
+                "configuration": {
+                    "triple_column": "For wide screens",
+                    "double_column": "For medium screens",
+                    "single_column": "For compact screens"
+                },
+                "collapse_behavior": "Automatic based on available width"
+            }
+        },
+        "platform_conventions": {
+            "gestures": {
+                "swipe_back": "Enabled for hierarchical navigation",
+                "swipe_refresh": "Enabled for list views",
+                "context_menu": "3D Touch/Haptic Touch for previews",
+                "drag_and_drop": "Supported for reordering and data transfer"
+            },
+            "keyboard_shortcuts": {
+                "desktop": {
+                    "cmd+n": "New patient",
+                    "cmd+f": "Search",
+                    "cmd+s": "Save",
+                    "cmd+,": "Settings"
+                },
+                "external_keyboard": {
+                    "tab": "Navigate forward",
+                    "shift+tab": "Navigate backward",
+                    "space": "Activate selected control",
+                    "enter": "Primary action"
+                }
+            },
+            "cursor_interactions": {
+                "hover_effects": "Subtle scaling and elevation changes",
+                "right_click": "Context menus on desktop",
+                "drag_handle": "Visible only on hover for clean interface"
+            },
+            "focus_management": {
+                "ring_style": "Thin border with primary color",
+                "focus_order": "Logical based on visual layout",
+                "skip_links": "Available for keyboard navigation"
+            }
+        },
+        "component_library": {
+            "buttons": {
+                "primary": {
+                    "height": 44,
+                    "corner_radius": 10,
+                    "typography": "headline",
+                    "padding": {
+                        "horizontal": 20,
+                        "vertical": 12
+                    },
+                    "states": {
+                        "normal": {
+                            "background": "primary",
+                            "label": "label on primary"
+                        },
+                        "highlighted": {
+                            "opacity": 0.7
+                        },
+                        "disabled": {
+                            "opacity": 0.4
+                        }
+                    }
+                },
+                "secondary": {
+                    "height": 44,
+                    "corner_radius": 10,
+                    "typography": "headline",
+                    "border": {
+                        "width": 1,
+                        "color": "separator"
+                    },
+                    "states": {
+                        "normal": {
+                            "background": "clear",
+                            "label": "primary"
+                        },
+                        "highlighted": {
+                            "background": "quaternary fill"
+                        }
+                    }
+                },
+                "destructive": {
+                    "height": 44,
+                    "corner_radius": 10,
+                    "typography": "headline",
+                    "states": {
+                        "normal": {
+                            "background": "error",
+                            "label": "label on error"
+                        }
+                    }
+                }
+            },
+            "text_fields": {
+                "standard": {
+                    "height": 36,
+                    "corner_radius": 8,
+                    "background": "secondary background",
+                    "padding": {
+                        "horizontal": 12,
+                        "vertical": 8
+                    },
+                    "border": {
+                        "width": 1,
+                        "color": "separator"
+                    },
+                    "focus_state": {
+                        "border": {
+                            "width": 2,
+                            "color": "primary"
+                        }
+                    }
+                },
+                "search": {
+                    "height": 36,
+                    "corner_radius": 10,
+                    "background": "secondary background",
+                    "leading_icon": "magnifyingglass",
+                    "clear_button": "trailing, appears when text present"
+                }
+            },
+            "cards": {
+                "elevated": {
+                    "corner_radius": 12,
+                    "background": "secondary background",
+                    "shadow": {
+                        "opacity": 0.1,
+                        "radius": 8,
+                        "offset": {
+                            "x": 0,
+                            "y": 2
+                        }
+                    },
+                    "padding": 16
+                },
+                "filled": {
+                    "corner_radius": 12,
+                    "background": "tertiary background",
+                    "padding": 16
+                }
+            },
+            "lists": {
+                "inset_grouped": {
+                    "section_spacing": 32,
+                    "row_height": 44,
+                    "separator": {
+                        "color": "separator",
+                        "inset": 16
+                    },
+                    "background": "secondary background"
+                },
+                "plain": {
+                    "row_height": 44,
+                    "separator": {
+                        "color": "separator",
+                        "inset": 0
+                    },
+                    "background": "primary background"
+                }
+            },
+            "modals": {
+                "sheet": {
+                    "corner_radius": 12,
+                    "background": "secondary background",
+                    "drag_handle": {
+                        "visible": true,
+                        "size": {
+                            "width": 36,
+                            "height": 5
+                        }
+                    },
+                    "detents": [
+                        "medium",
+                        "large"
+                    ]
+                },
+                "alert": {
+                    "corner_radius": 14,
+                    "background": "secondary background",
+                    "title_typography": "headline",
+                    "message_typography": "body"
+                }
+            }
+        },
+        "iconography": {
+            "set": "SF Symbols 4",
+            "size_scale": {
+                "small": 16,
+                "medium": 20,
+                "large": 24,
+                "xlarge": 28
+            },
+            "weight_scale": {
+                "ultralight": "ultraLight",
+                "thin": "thin",
+                "light": "light",
+                "regular": "regular",
+                "medium": "medium",
+                "semibold": "semibold",
+                "bold": "bold",
+                "heavy": "heavy",
+                "black": "black"
+            },
+            "healthcare_specific": {
+                "patient": "person.circle.fill",
+                "appointment": "calendar",
+                "medication": "pills.fill",
+                "lab": "testtube.2",
+                "vitals": "heart.text.square.fill",
+                "allergy": "exclamationmark.triangle.fill",
+                "billing": "dollarsign.circle.fill",
+                "message": "message.fill"
+            }
+        }
+    }
+}
