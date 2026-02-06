@@ -20,7 +20,7 @@ mod routes;
 mod handlers;
 mod state;
 mod error;
-mod config;
+pub mod config;
 
 pub use state::AppState;
 pub use error::ApiError;
@@ -40,7 +40,7 @@ pub async fn start_server(config: config::ServerConfig) -> anyhow::Result<()> {
     db.initialize()?;
 
     // Create app state
-    let state = AppState::new(db, config.jwt_secret.clone());
+    let state = AppState::new(db, config.jwt_secret.clone(), config.encryption_key.clone());
 
     // Build router
     let app = create_router(state);
