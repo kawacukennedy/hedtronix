@@ -4,8 +4,9 @@ import { defineConfig } from 'vite';
 export default defineConfig({
     plugins: [sveltekit()],
     server: {
-        proxy: {
-            '/api': 'http://localhost:8080'
-        }
+        // Proxy disabled for mock mode to prevent startup delays
+        // proxy: {
+        //     '/api': 'http://localhost:8080'
+        // }
     }
 });
