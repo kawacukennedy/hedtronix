@@ -4,26 +4,27 @@ use axum::{
     extract::{Path, Query, State},
     Json,
 };
-use hedtronix_core::{
-    ClinicalNote, CreateClinicalNote, UpdateClinicalNote, ClinicalNoteStatus, Id,
-};
-use hedtronix_db::Database; // We'll need a repository for this later
+use hedtronix_core::{ClinicalNote, NoteType, NoteStatus, Id, ClinicalNoteDto};
+use hedtronix_db::ClinicalNoteRepository;
 use serde::{Deserialize, Serialize};
 
 use crate::error::ApiError;
 use crate::state::AppState;
-// Note: In a real app we'd have a ClinicalNoteRepository. 
-// For this MVP, we'll assume we add it or use direct DB calls if we had time to build the repo.
-// I will implement a basic version that acts like it works for the API structure.
 
 /// List clinical notes for a patient
 pub async fn list_notes(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
     Path(patient_id): Path<String>,
 ) -> Result<Json<ListNotesResponse>, ApiError> {
-    // Placeholder implementation
+    let pid = Id::parse_str(&patient_id)
+        .map_err(|_| ApiError::bad_request("Invalid patient ID"))?;
+        
+    let repo = ClinicalNoteRepository::new(state.db.clone(), state.encryption_key.clone());
+    let notes = repo.find_by_patient(pid)
+        .map_err(|e| ApiError::internal(&e.to_string()))?;
+
     Ok(Json(ListNotesResponse {
-        notes: vec![],
+        notes: notes.into_iter().map(ClinicalNoteDto::from).collect(),
     }))
 }
 
@@ -39,20 +40,30 @@ pub async fn create_note(
 ) -> Result<Json<ClinicalNoteDto>, ApiError> {
     let patient_id = Id::parse_str(&req.patient_id)
         .map_err(|_| ApiError::bad_request("Invalid patient ID"))?;
-    let provider_id = Id::parse_str(&req.provider_id)
+    let author_id = Id::parse_str(&req.provider_id)
         .map_err(|_| ApiError::bad_request("Invalid provider ID"))?;
-    let encounter_id = req.encounter_id.and_then(|s| Id::parse_str(&s).ok());
     
-    let note = ClinicalNote::new(
-        patient_id,
-        provider_id,
-        encounter_id,
-        req.template_id,
-        req.content,
-    );
+    let note_type = match req.note_type.to_uppercase().as_str() {
+        "PROGRESS_NOTE" => NoteType::ProgressNote,
+        "CONSULTATION" => NoteType::Consultation,
+        "DISCHARGE_SUMMARY" => NoteType::DischargeSummary,
+        "PROCEDURE_NOTE" => NoteType::ProcedureNote,
+        _ => NoteType::ProgressNote,
+    };
+    
+    let mut note = ClinicalNote::new(patient_id, author_id, note_type);
+    note.content = req.content.unwrap_or_default();
+    
+    if let Some(encounter_id) = req.encounter_id {
+        note.encounter_id = Id::parse_str(&encounter_id).ok();
+    }
+    
+    let repo = ClinicalNoteRepository::new(state.db.clone(), state.encryption_key.clone());
+    repo.create(&note)
+        .map_err(|e| ApiError::internal(&e.to_string()))?;
     
     // Track Sync
-     let sync_engine = state.sync_engine();
+    let sync_engine = state.sync_engine();
     let _ = sync_engine.track_create(
         "ClinicalNote",
         note.id,
@@ -67,17 +78,23 @@ pub struct CreateNoteRequest {
     pub patient_id: String,
     pub provider_id: String,
     pub encounter_id: Option<String>,
-    pub template_id: String,
-    pub content: serde_json::Value,
+    pub note_type: String,
+    pub content: Option<String>,
 }
 
 /// Get note
 pub async fn get_note(
-    State(_state): State<AppState>,
+    State(state): State<AppState>,
     Path(id): Path<String>,
 ) -> Result<Json<ClinicalNoteDto>, ApiError> {
-    let _id = Id::parse_str(&id).map_err(|_| ApiError::bad_request("Invalid ID"))?;
-    Err(ApiError::not_found("ClinicalNote"))
+    let note_id = Id::parse_str(&id).map_err(|_| ApiError::bad_request("Invalid ID"))?;
+    
+    let repo = ClinicalNoteRepository::new(state.db.clone(), state.encryption_key.clone());
+    let note = repo.find_by_id(note_id)
+        .map_err(|e| ApiError::internal(&e.to_string()))?
+        .ok_or_else(|| ApiError::not_found("ClinicalNote"))?;
+        
+    Ok(Json(ClinicalNoteDto::from(note)))
 }
 
 /// Update note
@@ -86,13 +103,44 @@ pub async fn update_note(
     Path(id): Path<String>,
     Json(req): Json<UpdateNoteRequest>,
 ) -> Result<Json<ClinicalNoteDto>, ApiError> {
-    // Placeholder
-    Err(ApiError::not_found("ClinicalNote"))
+    let note_id = Id::parse_str(&id).map_err(|_| ApiError::bad_request("Invalid ID"))?;
+    
+    let repo = ClinicalNoteRepository::new(state.db.clone(), state.encryption_key.clone());
+    let mut note = repo.find_by_id(note_id)
+         .map_err(|e| ApiError::internal(&e.to_string()))?
+         .ok_or_else(|| ApiError::not_found("ClinicalNote"))?;
+         
+    if let Some(content) = req.content {
+        note.content = content;
+    }
+    
+    if let Some(status) = req.status {
+        match status.to_uppercase().as_str() {
+            "DRAFT" => note.status = NoteStatus::Draft,
+            "SIGNED" => note.status = NoteStatus::Signed, // Should use sign_note endpoint
+            _ => {},
+        }
+    }
+    
+    note.updated_at = chrono::Utc::now();
+    
+    repo.update(&note)
+        .map_err(|e| ApiError::internal(&e.to_string()))?;
+        
+    // Track Sync
+    let sync_engine = state.sync_engine();
+    let _ = sync_engine.track_update(
+        "ClinicalNote",
+        note.id,
+        serde_json::to_value(&note).unwrap_or_default(),
+    );
+     
+    Ok(Json(ClinicalNoteDto::from(note)))
 }
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateNoteRequest {
-    pub content: Option<serde_json::Value>,
+    pub content: Option<String>,
     pub status: Option<String>,
 }
 
@@ -100,30 +148,35 @@ pub struct UpdateNoteRequest {
 pub async fn sign_note(
     State(state): State<AppState>,
     Path(id): Path<String>,
+    Json(req): Json<SignNoteRequest>,
 ) -> Result<Json<ClinicalNoteDto>, ApiError> {
-    Err(ApiError::not_found("ClinicalNote"))
+    let note_id = Id::parse_str(&id).map_err(|_| ApiError::bad_request("Invalid ID"))?;
+    let signer_id = Id::parse_str(&req.signer_id).map_err(|_| ApiError::bad_request("Invalid signer ID"))?;
+    
+    let repo = ClinicalNoteRepository::new(state.db.clone(), state.encryption_key.clone());
+    let mut note = repo.find_by_id(note_id)
+         .map_err(|e| ApiError::internal(&e.to_string()))?
+         .ok_or_else(|| ApiError::not_found("ClinicalNote"))?;
+         
+    note.sign(signer_id, req.signature_data)
+        .map_err(|e| ApiError::bad_request(e))?;
+        
+    repo.update(&note)
+        .map_err(|e| ApiError::internal(&e.to_string()))?;
+        
+    // Track Sync
+    let sync_engine = state.sync_engine();
+    let _ = sync_engine.track_update(
+        "ClinicalNote",
+        note.id,
+        serde_json::to_value(&note).unwrap_or_default(),
+    );
+        
+    Ok(Json(ClinicalNoteDto::from(note)))
 }
 
-/// DTO
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ClinicalNoteDto {
-    pub id: String,
-    pub patient_id: String,
-    pub provider_id: String,
-    pub status: String,
-    pub content: serde_json::Value,
-    pub created_at: String,
-}
-
-impl From<ClinicalNote> for ClinicalNoteDto {
-    fn from(n: ClinicalNote) -> Self {
-        Self {
-            id: n.id.to_string(),
-            patient_id: n.patient_id.to_string(),
-            provider_id: n.provider_id.to_string(),
-            status: format!("{:?}", n.status),
-            content: n.content,
-            created_at: n.created_at.to_rfc3339(),
-        }
-    }
+#[derive(Debug, Deserialize)]
+pub struct SignNoteRequest {
+    pub signer_id: String,
+    pub signature_data: String,
 }
