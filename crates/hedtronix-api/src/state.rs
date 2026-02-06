@@ -10,14 +10,16 @@ use hedtronix_sync::SyncEngine;
 pub struct AppState {
     pub db: Database,
     pub auth_state: AuthState,
+    pub encryption_key: Vec<u8>,
     pub device_id: String,
 }
 
 impl AppState {
-    pub fn new(db: Database, jwt_secret: Vec<u8>) -> Self {
+    pub fn new(db: Database, jwt_secret: Vec<u8>, encryption_key: Vec<u8>) -> Self {
         Self {
             db,
             auth_state: AuthState::new(jwt_secret),
+            encryption_key,
             device_id: uuid::Uuid::new_v4().to_string(),
         }
     }
