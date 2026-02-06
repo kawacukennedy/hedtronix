@@ -1,100 +1,119 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { api } from '$lib/api';
-  
-  let patients: any[] = [];
-  let loading = true;
-  let query = '';
+    import { onMount, tick } from 'svelte';
+    import { type User } from '$lib/stores/auth'; // Reusing type for clean code, though Patient is different
+    import { db } from '$lib/db/indexed-db';
+    import { syncStore } from '$lib/stores/sync'; // Trigger sync on load?
+    
+    // UI Components
+    import { Button } from "$lib/components/ui/button";
+    import { Input } from "$lib/components/ui/input";
+    import * as Table from "$lib/components/ui/table";
+    import * as Card from "$lib/components/ui/card";
+    import { Search, UserPlus, Filter } from 'lucide-svelte';
 
-  async function loadPatients() {
-    loading = true;
-    try {
-      const endpoint = query 
-        ? `/patients/search` // Post requires body, let's just stick to list for now or enable search properly
-        : `/patients`;
-      
-      let res;
-      if (query) {
-         res = await api.post('/patients/search', { query, active_only: true });
-      } else {
-         res = await api.get('/patients');
-      }
-      patients = res.patients;
-    } catch (e) {
-      console.error(e);
-    } finally {
-      loading = false;
+    let patients: any[] = [];
+    let loading = true;
+    let searchQuery = '';
+
+    onMount(async () => {
+        await loadPatients();
+        // Listen for sync changes? Ideally syncStore would emit an event or we poll
+        // For now, reload on mount is good enough for MVP
+    });
+
+    async function loadPatients() {
+        loading = true;
+        try {
+            patients = await db.getAllPatients();
+        } catch (e) {
+            console.error("Failed to load patients", e);
+        } finally {
+            loading = false;
+        }
     }
-  }
 
-  function handleSearch() {
-    loadPatients();
-  }
-
-  onMount(() => {
-    loadPatients();
-  });
+    $: filteredPatients = patients.filter(p => {
+        const query = searchQuery.toLowerCase();
+        return (
+            p.firstName.toLowerCase().includes(query) ||
+            p.lastName.toLowerCase().includes(query) ||
+            p.medicalRecordNumber.toLowerCase().includes(query)
+        );
+    });
 </script>
 
-<div class="space-y-6">
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-3xl font-bold tracking-tight">Patients</h1>
-      <p class="text-muted-foreground">Manage patient records.</p>
+<div class="flex flex-col gap-6 p-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold tracking-tight">Patients</h1>
+            <p class="text-muted-foreground">Manage patient records</p>
+        </div>
+        <Button href="/patients/new">
+            <UserPlus class="mr-2 h-4 w-4" />
+            Add Patient
+        </Button>
     </div>
-    <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
-      Add Patient
-    </button>
-  </div>
 
-  <div class="flex items-center space-x-2">
-    <input 
-      class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 max-w-sm" 
-      placeholder="Search patients..." 
-      bind:value={query}
-      on:keydown={(e) => e.key === 'Enter' && handleSearch()}
-    />
-    <button 
-        on:click={handleSearch}
-        class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-      Search
-    </button>
-  </div>
-
-  <div class="rounded-md border">
-    <div class="relative w-full overflow-auto">
-      <table class="w-full caption-bottom text-sm">
-        <thead class="[&_tr]:border-b">
-          <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-            <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">MRN</th>
-            <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Name</th>
-            <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">DOB</th>
-            <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Gender</th>
-            <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Phone</th>
-            <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="[&_tr:last-child]:border-0">
-          {#if loading}
-             <tr><td colspan="6" class="p-4 text-center">Loading...</td></tr>
-          {:else if patients.length === 0}
-             <tr><td colspan="6" class="p-4 text-center text-muted-foreground">No patients found.</td></tr>
-          {:else}
-            {#each patients as patient}
-              <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                <td class="p-4 align-middle font-medium">{patient.medical_record_number}</td>
-                <td class="p-4 align-middle">{patient.last_name}, {patient.first_name}</td>
-                <td class="p-4 align-middle">{patient.date_of_birth}</td>
-                <td class="p-4 align-middle">{patient.gender}</td>
-                <td class="p-4 align-middle">{patient.phone}</td>
-                <td class="p-4 align-middle">
-                  <a href={`/patients/${patient.id}`} class="text-primary hover:underline">View</a>
-                </td>
-              </tr>
-            {/each}
-          {/if}
-        </tbody>
-      </table>
-    </div>
-  </div>
+    <Card.Root>
+        <Card.Header>
+            <div class="flex items-center gap-4">
+                <div class="relative flex-1 max-w-sm">
+                    <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                        type="search" 
+                        placeholder="Search by name or MRN..." 
+                        class="pl-8"
+                        bind:value={searchQuery}
+                    />
+                </div>
+                <Button variant="outline" size="icon">
+                    <Filter class="h-4 w-4" />
+                </Button>
+            </div>
+        </Card.Header>
+        <Card.Content>
+            {#if loading}
+                <div class="text-center py-4">Loading patients...</div>
+            {:else if filteredPatients.length === 0}
+                 <div class="text-center py-8 text-muted-foreground">
+                    No patients found.
+                </div>
+            {:else}
+            <div class="overflow-x-auto">
+                <Table.Root>
+                    <Table.Header>
+                        <Table.Row>
+                            <Table.Head>Name</Table.Head>
+                            <Table.Head>MRN</Table.Head>
+                            <Table.Head>DOB</Table.Head>
+                            <Table.Head>Status</Table.Head>
+                            <Table.Head class="text-right">Actions</Table.Head>
+                        </Table.Row>
+                    </Table.Header>
+                    <Table.Body>
+                        {#each filteredPatients as patient}
+                            <Table.Row>
+                                <Table.Cell class="font-medium">
+                                    <a href={`/patients/${patient.id}`} class="hover:underline">
+                                        {patient.lastName}, {patient.firstName}
+                                    </a>
+                                </Table.Cell>
+                                <Table.Cell>{patient.medicalRecordNumber}</Table.Cell>
+                                <Table.Cell>{patient.dateOfBirth}</Table.Cell>
+                                <Table.Cell>
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                </Table.Cell>
+                                <Table.Cell class="text-right">
+                                    <Button variant="ghost" size="sm" href={`/patients/${patient.id}`}>View</Button>
+                                </Table.Cell>
+                            </Table.Row>
+                        {/each}
+                    </Table.Body>
+                </Table.Root>
+            </div>
+            {/if}
+        </Card.Content>
+    </Card.Root>
 </div>
