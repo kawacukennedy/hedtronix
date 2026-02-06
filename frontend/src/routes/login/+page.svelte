@@ -1,28 +1,14 @@
 <script lang="ts">
-  import { api } from '$lib/api';
-  import { auth } from '$lib/stores/auth';
+  import { auth, login } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
 
   let email = '';
   let password = '';
-  let error = '';
-  let loading = false;
 
   async function handleLogin() {
-    loading = true;
-    error = '';
-    try {
-      const response = await api.post('/auth/login', { email, password });
-      auth.set({
-        user: response.user,
-        token: response.tokens.access_token,
-        isAuthenticated: true
-      });
+    await login(email, password);
+    if ($auth.isAuthenticated) {
       goto('/');
-    } catch (e: any) {
-      error = e.message || 'Login failed';
-    } finally {
-      loading = false;
     }
   }
 </script>
@@ -34,9 +20,9 @@
       <p class="text-muted-foreground">Healthcare Operating System</p>
     </div>
     
-    {#if error}
+    {#if $auth.error}
       <div class="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
-        {error}
+        {$auth.error}
       </div>
     {/if}
 
@@ -64,10 +50,10 @@
       </div>
       <button 
         type="submit" 
-        disabled={loading}
+        disabled={$auth.loading}
         class="inline-flex h-10 w-full items-center justify-center whitespace-nowrap rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
       >
-        {loading ? 'Signing in...' : 'Sign In'}
+        {$auth.loading ? 'Signing in...' : 'Sign In'}
       </button>
     </form>
   </div>
