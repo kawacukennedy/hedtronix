@@ -9,4 +9,5 @@ pub mod permissions;
 
 pub use jwt::*;
 pub use session::*;
+pub use middleware::*;
 pub use permissions::*;

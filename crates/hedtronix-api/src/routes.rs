@@ -3,12 +3,10 @@
 use axum::{
     routing::{get, post, put, delete},
     Router,
-    middleware,
 };
 
 use crate::handlers;
 use crate::state::AppState;
-use hedtronix_auth::middleware::auth_middleware;
 
 /// Authentication routes (public)
 pub fn auth_routes() -> Router<AppState> {
@@ -30,11 +28,6 @@ pub fn patient_routes() -> Router<AppState> {
         .route("/:id/allergies", post(handlers::patients::add_allergy))
         .route("/:id/medications", post(handlers::patients::add_medication))
         .route("/search", post(handlers::patients::search_patients))
-        .route_layer(middleware::from_fn_with_state::<AppState, _, _>(
-            |state, req, next| async move {
-                auth_middleware(axum::extract::State(state.auth_state.clone()), req, next).await
-            }
-        ))
 }
 
 /// Appointment routes (protected)
@@ -49,11 +42,6 @@ pub fn appointment_routes() -> Router<AppState> {
         .route("/:id/complete", post(handlers::appointments::complete))
         .route("/conflicts", post(handlers::appointments::check_conflicts))
         .route("/calendar", get(handlers::appointments::get_calendar))
-        .route_layer(middleware::from_fn_with_state::<AppState, _, _>(
-            |state, req, next| async move {
-                auth_middleware(axum::extract::State(state.auth_state.clone()), req, next).await
-            }
-        ))
 }
 
 /// Sync routes (protected)
@@ -63,11 +51,6 @@ pub fn sync_routes() -> Router<AppState> {
         .route("/pull", post(handlers::sync::pull_changes))
         .route("/status", get(handlers::sync::get_status))
         .route("/health", get(handlers::sync::get_health))
-        .route_layer(middleware::from_fn_with_state::<AppState, _, _>(
-            |state, req, next| async move {
-                auth_middleware(axum::extract::State(state.auth_state.clone()), req, next).await
-            }
-        ))
 }
 
 /// User management routes (admin only)
@@ -79,11 +62,6 @@ pub fn user_routes() -> Router<AppState> {
         .route("/:id", put(handlers::users::update_user))
         .route("/:id", delete(handlers::users::delete_user))
         .route("/me", get(handlers::users::get_current_user))
-        .route_layer(middleware::from_fn_with_state::<AppState, _, _>(
-            |state, req, next| async move {
-                auth_middleware(axum::extract::State(state.auth_state.clone()), req, next).await
-            }
-        ))
 }
 
 /// Clinical Note routes
@@ -94,11 +72,6 @@ pub fn clinical_note_routes() -> Router<AppState> {
         .route("/:id", get(handlers::clinical_notes::get_note))
         .route("/:id", put(handlers::clinical_notes::update_note))
         .route("/:id/sign", post(handlers::clinical_notes::sign_note))
-        .route_layer(middleware::from_fn_with_state::<AppState, _, _>(
-            |state, req, next| async move {
-                auth_middleware(axum::extract::State(state.auth_state.clone()), req, next).await
-            }
-        ))
 }
 
 /// Billing routes
@@ -106,9 +79,4 @@ pub fn billing_routes() -> Router<AppState> {
     Router::new()
         .route("/", get(handlers::billing::list_billing))
         .route("/", post(handlers::billing::create_billing))
-        .route_layer(middleware::from_fn_with_state::<AppState, _, _>(
-            |state, req, next| async move {
-                auth_middleware(axum::extract::State(state.auth_state.clone()), req, next).await
-            }
-        ))
 }
