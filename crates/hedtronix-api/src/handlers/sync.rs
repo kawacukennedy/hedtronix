@@ -18,15 +18,24 @@ pub async fn push_changes(
 ) -> Result<Json<PushResponse>, ApiError> {
     let sync_engine = state.sync_engine();
     
-    // Apply changes to local database and mark as synced
-    let mut acknowledged = Vec::new();
-    let rejected = Vec::new();
-    
-    for change in req.changes {
-        // In a real implementation, this would apply changes to the database
-        // For now, just acknowledge them
-        acknowledged.push(change.id);
-    }
+    // Apply remote changes
+    let result = sync_engine.apply_remote_changes(req.changes)
+        .map_err(|e| ApiError::internal(&format!("Sync failed: {}", e)))?;
+        
+    // In a real implementation we would map conflicts to rejected changes with reasons
+    // For now we assume conflicts are rejected
+    let rejected = result.conflicts.into_iter()
+        .map(|id| hedtronix_sync::RejectedChange {
+            change_id: id,
+            reason: "Conflict detected".to_string(),
+        })
+        .collect();
+        
+    // Calculate acknowledged (all changes not in conflicts are considered successfully processed/resolved)
+    let acknowledged = req.changes.iter()
+        .map(|c| c.id)
+        .filter(|id| !result.conflicts.contains(id))
+        .collect();
     
     Ok(Json(PushResponse {
         acknowledged,
@@ -44,12 +53,21 @@ pub async fn pull_changes(
     
     // Get pending changes for the client
     let limit = req.limit.unwrap_or(100);
+    // In a real implementation we would filter by 'since' timestamp and 'entity_types'
+    // For now we just get pending changes from the queue
     let changes = sync_engine.get_pending_changes(limit)
         .map_err(|e| ApiError::internal(&e.to_string()))?;
+        
+    // Mark these as synced (in a real app we'd wait for ack)
+    // For MVP we assume successful delivery
+    let change_ids: Vec<hedtronix_core::Id> = changes.iter().map(|c| c.id).collect();
+    if !change_ids.is_empty() {
+         let _ = sync_engine.mark_synced(&change_ids);
+    }
     
     Ok(Json(PullResponse {
         changes,
-        has_more: false,
+        has_more: false, // Would check if count > limit
         next_cursor: None,
         server_time: chrono::Utc::now(),
     }))
