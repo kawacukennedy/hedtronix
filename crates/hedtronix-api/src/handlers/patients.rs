@@ -26,7 +26,7 @@ pub async fn list_patients(
     State(state): State<AppState>,
     Query(query): Query<ListQuery>,
 ) -> Result<Json<ListPatientsResponse>, ApiError> {
-    let repo = PatientRepository::new(state.db.clone());
+    let repo = PatientRepository::new(state.db.clone(), state.encryption_key.clone());
     let filters = PatientSearchFilters {
         page: query.page.unwrap_or(0),
         limit: query.limit.unwrap_or(20).min(100),
@@ -63,7 +63,7 @@ pub async fn get_patient(
     let patient_id = Id::parse_str(&id)
         .map_err(|_| ApiError::bad_request("Invalid patient ID"))?;
     
-    let repo = PatientRepository::new(state.db.clone());
+    let repo = PatientRepository::new(state.db.clone(), state.encryption_key.clone());
     let patient = repo.find_by_id(patient_id)
         .map_err(|e| ApiError::internal(&e.to_string()))?
         .ok_or_else(|| ApiError::not_found("Patient"))?;
@@ -80,7 +80,7 @@ pub async fn create_patient(
     let dob = chrono::NaiveDate::parse_from_str(&req.date_of_birth, "%Y-%m-%d")
         .map_err(|_| ApiError::bad_request("Invalid date format, use YYYY-MM-DD"))?;
     
-    let repo = PatientRepository::new(state.db.clone());
+    let repo = PatientRepository::new(state.db.clone(), state.encryption_key.clone());
     let mrn = repo.generate_mrn()
         .map_err(|e| ApiError::internal(&e.to_string()))?;
     
@@ -119,7 +119,7 @@ pub async fn update_patient(
     let patient_id = Id::parse_str(&id)
         .map_err(|_| ApiError::bad_request("Invalid patient ID"))?;
     
-    let repo = PatientRepository::new(state.db.clone());
+    let repo = PatientRepository::new(state.db.clone(), state.encryption_key.clone());
     let mut patient = repo.find_by_id(patient_id)
         .map_err(|e| ApiError::internal(&e.to_string()))?
         .ok_or_else(|| ApiError::not_found("Patient"))?;
@@ -169,7 +169,7 @@ pub async fn delete_patient(
     let patient_id = Id::parse_str(&id)
         .map_err(|_| ApiError::bad_request("Invalid patient ID"))?;
     
-    let repo = PatientRepository::new(state.db.clone());
+    let repo = PatientRepository::new(state.db.clone(), state.encryption_key.clone());
     let mut patient = repo.find_by_id(patient_id)
         .map_err(|e| ApiError::internal(&e.to_string()))?
         .ok_or_else(|| ApiError::not_found("Patient"))?;
@@ -197,7 +197,7 @@ pub async fn search_patients(
     State(state): State<AppState>,
     Json(req): Json<SearchRequest>,
 ) -> Result<Json<ListPatientsResponse>, ApiError> {
-    let repo = PatientRepository::new(state.db.clone());
+    let repo = PatientRepository::new(state.db.clone(), state.encryption_key.clone());
     let filters = PatientSearchFilters {
         query: Some(req.query),
         page: req.page.unwrap_or(0),
@@ -234,7 +234,7 @@ pub async fn add_allergy(
     let patient_id = Id::parse_str(&id)
         .map_err(|_| ApiError::bad_request("Invalid patient ID"))?;
     
-    let repo = PatientRepository::new(state.db.clone());
+    let repo = PatientRepository::new(state.db.clone(), state.encryption_key.clone());
     let mut patient = repo.find_by_id(patient_id)
         .map_err(|e| ApiError::internal(&e.to_string()))?
         .ok_or_else(|| ApiError::not_found("Patient"))?;
@@ -281,7 +281,7 @@ pub async fn add_medication(
     let patient_id = Id::parse_str(&id)
         .map_err(|_| ApiError::bad_request("Invalid patient ID"))?;
     
-    let repo = PatientRepository::new(state.db.clone());
+    let repo = PatientRepository::new(state.db.clone(), state.encryption_key.clone());
     let mut patient = repo.find_by_id(patient_id)
         .map_err(|e| ApiError::internal(&e.to_string()))?
         .ok_or_else(|| ApiError::not_found("Patient"))?;
