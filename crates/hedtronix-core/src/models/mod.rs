@@ -3,16 +3,16 @@
 //! These models represent the core entities in the healthcare system
 //! with CRDT support for offline-first operation.
 
-mod user;
-mod device;
-mod patient;
-mod appointment;
-mod clinical_note;
-mod billing;
-mod audit_log;
-mod department;
-mod room;
-mod encounter;
+pub mod user;
+pub mod device;
+pub mod patient;
+pub mod appointment;
+pub mod clinical_note;
+pub mod billing;
+pub mod audit_log;
+pub mod department;
+pub mod room;
+pub mod encounter;
 
 pub use user::*;
 pub use device::*;
