@@ -55,6 +55,18 @@ pub enum Gender {
     Unknown,
 }
 
+impl Gender {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Gender::Male => "MALE",
+            Gender::Female => "FEMALE",
+            Gender::Other => "OTHER",
+            Gender::Unknown => "UNKNOWN",
+        }
+    }
+}
+
+
 /// Clinical note types
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
