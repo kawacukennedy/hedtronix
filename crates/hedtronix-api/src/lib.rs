@@ -82,6 +82,12 @@ pub fn create_router(state: AppState) -> Router {
         // Billing routes
         .nest("/api/v1/billing", routes::billing_routes())
         
+        // Analytics routes
+        .nest("/api/v1/analytics", routes::analytics_routes())
+        
+        // Audit log routes
+        .nest("/api/v1/audit", routes::audit_log_routes())
+        
         // CORS and tracing
         .layer(
             CorsLayer::new()

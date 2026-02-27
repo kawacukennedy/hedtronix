@@ -80,3 +80,17 @@ pub fn billing_routes() -> Router<AppState> {
         .route("/", get(handlers::billing::list_billing))
         .route("/", post(handlers::billing::create_billing))
 }
+
+/// Analytics routes (protected)
+pub fn analytics_routes() -> Router<AppState> {
+    Router::new()
+        .route("/metrics", get(handlers::analytics::get_metrics))
+        .route("/report", get(handlers::analytics::get_report))
+}
+
+/// Audit log routes (admin only)
+pub fn audit_log_routes() -> Router<AppState> {
+    Router::new()
+        .route("/", get(handlers::audit_log::list_audit_logs))
+        .route("/:id", get(handlers::audit_log::get_audit_log))
+}
